@@ -808,7 +808,9 @@ mark.bom-hl{background:#fff3c4;color:#92400e;border-radius:2px;padding:0 1px;fon
 
 
 function relGerarKanban(){
-  _loadProjects();
+  _loadProjects(function(){ _relGerarKanbanComDados(); });
+}
+function _relGerarKanbanComDados(){
   var STLBL={todo:'TO DO',doing:'DOING',onhold:'ON HOLD',done:'DONE'};
   var STCOL={todo:'#6b7280',doing:'#0070C0',onhold:'#e09900',done:'#22c55e'};
   var PRIO={low:'Baixa',medium:'Média',high:'Alta',critical:'Crítica'};
@@ -915,11 +917,16 @@ function _checkAutoReport(){
   var key = 'audax_rel_sent_' + now.getFullYear() + '_' + now.getMonth();
   if(localStorage.getItem(key)) return;
 
-  // Aguardar login + dados carregados
+  // Aguardar login + dados carregados, então buscar do Supabase
   setTimeout(function(){
-    _loadAmostras(); _loadProjects(); _loadActivities();
-    var dados = _buildReportData();
-    _showAutoReportModal(dados, key);
+    _loadAmostras(function(){
+      _loadProjects(function(){
+        _loadActivities(function(){
+          var dados = _buildReportData();
+          _showAutoReportModal(dados, key);
+        });
+      });
+    });
   }, 2000);
 }
 
@@ -1073,11 +1080,12 @@ function _sendReportEmail(dados, storageKey, overlay, btn){
 
 // ── Botão manual para forçar envio (nos Relatórios) ──
 function relEnviarEmail(){
-  _loadAmostras(); _loadProjects(); _loadActivities();
-  var dados = _buildReportData();
-  var now   = new Date();
-  var key   = 'audax_rel_sent_manual_'+Date.now();
-  _showAutoReportModal(dados, key);
+  _loadAmostras(function(){ _loadProjects(function(){ _loadActivities(function(){
+    var dados = _buildReportData();
+    var now   = new Date();
+    var key   = 'audax_rel_sent_manual_'+Date.now();
+    _showAutoReportModal(dados, key);
+  }); }); });
 }
 
 
@@ -1135,7 +1143,7 @@ function _checkSextaFeira(){
   var key = 'audax_atv_sent_'+now.getFullYear()+'_'+(now.getMonth()+1)+'_'+now.getDate();
   if(localStorage.getItem(key)) return;
 
-  _loadActivities();
+  _loadActivities(function(){
   var atvDone    = _activities.filter(function(a){ return a.status==='done'; });
   var atvDoing   = _activities.filter(function(a){ return a.status==='doing'; });
   var atvPending = _activities.filter(function(a){ return a.status==='pending'; });
@@ -1157,6 +1165,7 @@ function _checkSextaFeira(){
   };
 
   _showAtvReportModal(dados, key);
+  });
 }
 
 function _showAtvReportModal(dados, storageKey){
@@ -1252,11 +1261,16 @@ function _checkAutoReport(){
   var key = 'audax_rel_sent_' + now.getFullYear() + '_' + now.getMonth();
   if(localStorage.getItem(key)) return;
 
-  // Aguardar login + dados carregados
+  // Aguardar login + dados carregados, então buscar do Supabase
   setTimeout(function(){
-    _loadAmostras(); _loadProjects(); _loadActivities();
-    var dados = _buildReportData();
-    _showAutoReportModal(dados, key);
+    _loadAmostras(function(){
+      _loadProjects(function(){
+        _loadActivities(function(){
+          var dados = _buildReportData();
+          _showAutoReportModal(dados, key);
+        });
+      });
+    });
   }, 2000);
 }
 
@@ -1410,11 +1424,12 @@ function _sendReportEmail(dados, storageKey, overlay, btn){
 
 // ── Botão manual para forçar envio (nos Relatórios) ──
 function relEnviarEmail(){
-  _loadAmostras(); _loadProjects(); _loadActivities();
-  var dados = _buildReportData();
-  var now   = new Date();
-  var key   = 'audax_rel_sent_manual_'+Date.now();
-  _showAutoReportModal(dados, key);
+  _loadAmostras(function(){ _loadProjects(function(){ _loadActivities(function(){
+    var dados = _buildReportData();
+    var now   = new Date();
+    var key   = 'audax_rel_sent_manual_'+Date.now();
+    _showAutoReportModal(dados, key);
+  }); }); });
 }
 
 
@@ -1472,7 +1487,7 @@ function _checkSextaFeira(){
   var key = 'audax_atv_sent_'+now.getFullYear()+'_'+(now.getMonth()+1)+'_'+now.getDate();
   if(localStorage.getItem(key)) return;
 
-  _loadActivities();
+  _loadActivities(function(){
   var atvDone    = _activities.filter(function(a){ return a.status==='done'; });
   var atvDoing   = _activities.filter(function(a){ return a.status==='doing'; });
   var atvPending = _activities.filter(function(a){ return a.status==='pending'; });
@@ -1494,6 +1509,7 @@ function _checkSextaFeira(){
   };
 
   _showAtvReportModal(dados, key);
+  });
 }
 
 function _showAtvReportModal(dados, storageKey){
@@ -1625,7 +1641,7 @@ function _checkSextaFeira(){
   var key = 'audax_atv_sent_'+now.getFullYear()+'_'+(now.getMonth()+1)+'_'+now.getDate();
   if(localStorage.getItem(key)) return;
 
-  _loadActivities();
+  _loadActivities(function(){
   var atvDone    = _activities.filter(function(a){ return a.status==='done'; });
   var atvDoing   = _activities.filter(function(a){ return a.status==='doing'; });
   var atvPending = _activities.filter(function(a){ return a.status==='pending'; });
@@ -1647,6 +1663,7 @@ function _checkSextaFeira(){
   };
 
   _showAtvReportModal(dados, key);
+  });
 }
 
 function _showAtvReportModal(dados, storageKey){
@@ -1778,7 +1795,7 @@ function _checkSextaFeira(){
   var key = 'audax_atv_sent_'+now.getFullYear()+'_'+(now.getMonth()+1)+'_'+now.getDate();
   if(localStorage.getItem(key)) return;
 
-  _loadActivities();
+  _loadActivities(function(){
   var atvDone    = _activities.filter(function(a){ return a.status==='done'; });
   var atvDoing   = _activities.filter(function(a){ return a.status==='doing'; });
   var atvPending = _activities.filter(function(a){ return a.status==='pending'; });
@@ -1800,6 +1817,7 @@ function _checkSextaFeira(){
   };
 
   _showAtvReportModal(dados, key);
+  });
 }
 
 function _showAtvReportModal(dados, storageKey){
@@ -5042,7 +5060,7 @@ function switchTab(id, btn){
   // kanban: re-renderizar ao entrar
   if(id==='projetos') renderKanban();
   if(id==='amostras')  renderAmostras();
-  if(id==='atividades'){ _loadActivities(); atvRender(); }
+  if(id==='atividades'){ _loadActivities(function(){ atvRender(); }); }
   if(id==='relatorios'){ setTimeout(function(){ _relInit(); }, 50); }
 }
 
@@ -6713,14 +6731,28 @@ var STATUS_LABEL = {todo:'TO DO', doing:'DOING', onhold:'ON HOLD', done:'DONE'};
 var PRIO_LABEL   = {low:'Baixa', medium:'Média', high:'Alta', critical:'Crítica'};
 var STATUS_COLOR = {todo:'#6b7280', doing:'#0070C0', onhold:'#e09900', done:'#00853E'};
 
-// ── Storage ──────────────────────────────────────────────
-function _projectsKey(){ return 'audax_projects_'+((_currentUser&&_currentUser.email)||'default'); }
-function _saveProjects(){ try{ localStorage.setItem(_projectsKey(), JSON.stringify(_projects)); }catch(e){} }
-function _loadProjects(){
-  try{
-    var raw = localStorage.getItem(_projectsKey());
-    _projects = raw ? JSON.parse(raw) : _demoProjects();
-  } catch(e){ _projects = _demoProjects(); }
+// ── Storage (Supabase) ───────────────────────────────────
+function _saveProjects(cb){
+  if(!_currentUser){ if(cb) cb(); return; }
+  var email = _currentUser.email;
+  var payload = {id: 'proj_'+email, user_email: email, data: JSON.stringify(_projects), updated_at: new Date().toISOString()};
+  _supaFetch('projects?id=eq.'+encodeURIComponent('proj_'+email), {method:'DELETE'})
+    .then(function(){ return _supaFetch('projects', {method:'POST', body:JSON.stringify(payload)}); })
+    .then(function(){ if(cb) cb(); })
+    .catch(function(e){ console.error('saveProjects error',e); if(cb) cb(); });
+}
+function _loadProjects(cb){
+  if(!_currentUser){ _projects=_demoProjects(); if(cb) cb(); return; }
+  var email = _currentUser.email;
+  _supaFetch('projects?user_email=eq.'+encodeURIComponent(email)+'&select=data')
+    .then(function(r){ return r.json(); })
+    .then(function(rows){
+      if(rows&&rows.length&&rows[0].data){
+        try{ _projects=JSON.parse(rows[0].data); }catch(e){ _projects=_demoProjects(); }
+      } else { _projects=_demoProjects(); }
+      if(cb) cb();
+    })
+    .catch(function(e){ _projects=_demoProjects(); if(cb) cb(); });
 }
 function _genId(){ return 'p_'+Date.now()+'_'+Math.random().toString(36).slice(2,7); }
 
@@ -6739,7 +6771,9 @@ function _demoProjects(){
 
 // ── Render ────────────────────────────────────────────────
 function renderKanban(){
-  _loadProjects();
+  _loadProjects(function(){ _renderKanbanList(); });
+}
+function _renderKanbanList(){
   // Popular select de clientes
   var selCli = document.getElementById('kanban-filter-cliente');
   if(selCli){
@@ -6842,7 +6876,7 @@ function onDrop(event, newStatus){
     p.status = newStatus;
     p.atualizado = new Date().toISOString().split('T')[0];
     _saveProjects();
-    renderKanban();
+    _renderKanbanList();
   }
 }
 
@@ -6934,7 +6968,7 @@ function saveProject(){
   }
   _saveProjects();
   closeProjectModal();
-  renderKanban();
+  _renderKanbanList();
 }
 
 function deleteProject(){
@@ -6943,7 +6977,7 @@ function deleteProject(){
   _projects = _projects.filter(function(p){ return p.id!==_editingId; });
   _saveProjects();
   closeProjectModal();
-  renderKanban();
+  _renderKanbanList();
 }
 
 // DOMContentLoaded consolidado no init global
@@ -6977,12 +7011,23 @@ var _editingAmsId = null;
 var _amsFaseAtual = 'bom';
 var _amsFaseData  = {}; // faseId -> 'pending'|'doing'|'done'
 
-function _saveAmostras(){ try{ localStorage.setItem('audax_amostras', JSON.stringify(_amostras)); }catch(e){} }
-function _loadAmostras(){
-  try{
-    var raw = localStorage.getItem('audax_amostras');
-    _amostras = raw ? JSON.parse(raw) : [];
-  } catch(e){ _amostras=[]; }
+function _saveAmostras(cb){
+  var payload = {id: 'amostras_shared', data: JSON.stringify(_amostras), updated_at: new Date().toISOString()};
+  _supaFetch('amostras?id=eq.amostras_shared', {method:'DELETE'})
+    .then(function(){ return _supaFetch('amostras', {method:'POST', body:JSON.stringify(payload)}); })
+    .then(function(){ if(cb) cb(); })
+    .catch(function(e){ console.error('saveAmostras error',e); if(cb) cb(); });
+}
+function _loadAmostras(cb){
+  _supaFetch('amostras?id=eq.amostras_shared&select=data')
+    .then(function(r){ return r.json(); })
+    .then(function(rows){
+      if(rows&&rows.length&&rows[0].data){
+        try{ _amostras=JSON.parse(rows[0].data); }catch(e){ _amostras=[]; }
+      } else { _amostras=[]; }
+      if(cb) cb();
+    })
+    .catch(function(e){ _amostras=[]; if(cb) cb(); });
 }
 
 function _calcAmsStatus(a){
@@ -7005,7 +7050,9 @@ function _faseIndex(id){ return FASES.findIndex(function(x){return x.id===id;});
 
 // ── Render cards ────────────────────────────────────────
 function renderAmostras(){
-  _loadAmostras();
+  _loadAmostras(function(){ _renderAmostrasList(); });
+}
+function _renderAmostrasList(){
   var q      = (document.getElementById('ams-search')||{value:''}).value.toLowerCase();
   // Ler status e fases activos (toggles)
   var activeStat=[], activeFase=[];
@@ -7254,14 +7301,16 @@ function saveAmostra(){
   } else {
     obj.id=_genId(); _amostras.push(obj);
   }
-  _saveAmostras(); closeAmostraModal(); renderAmostras();
+  _saveAmostras();  // fire-and-forget
+  closeAmostraModal(); _renderAmostrasList();
 }
 
 function deleteAmostra(){
   if(!_editingAmsId) return;
   if(!confirm('Excluir esta amostra?')) return;
   _amostras=_amostras.filter(function(a){return a.id!==_editingAmsId;});
-  _saveAmostras(); closeAmostraModal(); renderAmostras();
+  _saveAmostras();  // fire-and-forget
+  closeAmostraModal(); _renderAmostrasList();
 }
 
 function closeAmostraModal(){
@@ -7281,9 +7330,27 @@ function closeAmostraModal(){
 var _activities = [];
 var _editingAtvId = null;
 
-function _activitiesKey(){ return 'audax_activities_'+((_currentUser&&_currentUser.email)||'default'); }
-function _loadActivities(){ try{ var r=localStorage.getItem(_activitiesKey()); _activities=r?JSON.parse(r):[]; }catch(e){ _activities=[]; } }
-function _saveActivities(){ try{ localStorage.setItem(_activitiesKey(),JSON.stringify(_activities)); }catch(e){} }
+function _loadActivities(cb){
+  if(!_currentUser){ _activities=[]; if(cb) cb(); return; }
+  var email=_currentUser.email;
+  _supaFetch('activities?user_email=eq.'+encodeURIComponent(email)+'&select=data')
+    .then(function(r){ return r.json(); })
+    .then(function(rows){
+      if(rows&&rows.length&&rows[0].data){ try{ _activities=JSON.parse(rows[0].data); }catch(e){ _activities=[]; } }
+      else { _activities=[]; }
+      if(cb) cb();
+    })
+    .catch(function(e){ _activities=[]; if(cb) cb(); });
+}
+function _saveActivities(cb){
+  if(!_currentUser){ if(cb) cb(); return; }
+  var email=_currentUser.email;
+  var payload={id:'atv_'+email, user_email:email, data:JSON.stringify(_activities), updated_at:new Date().toISOString()};
+  _supaFetch('activities?id=eq.'+encodeURIComponent('atv_'+email), {method:'DELETE'})
+    .then(function(){ return _supaFetch('activities', {method:'POST', body:JSON.stringify(payload)}); })
+    .then(function(){ if(cb) cb(); })
+    .catch(function(e){ console.error('saveActivities error',e); if(cb) cb(); });
+}
 function _atvGenId(){ return 'atv_'+Date.now()+'_'+Math.random().toString(36).slice(2,5); }
 
 function atvOpenNew(){
@@ -7350,7 +7417,7 @@ function _atvShowTimerForId(id){
 
 function _atvPopulateProj(selId){
   var sel=document.getElementById('atv-proj'); if(!sel) return;
-  _loadProjects();
+  // Use _projects already in memory (loaded at login), populate directly
   sel.innerHTML='<option value="">Nenhum</option>';
   _projects.forEach(function(p){
     var opt=document.createElement('option');
@@ -7541,15 +7608,33 @@ var NP_COLORS=[
   {id:'purple',bg:'#e9d5ff',top:'#a855f7'},
 ];
 
-function _notesKey(){ return 'audax_notes_'+((_currentUser&&_currentUser.email)||'default'); }
-function _npLoad(){ try{ var r=localStorage.getItem(_notesKey()); _notes=r?JSON.parse(r):[]; }catch(e){ _notes=[]; } }
-function _npSave(){ try{ localStorage.setItem(_notesKey(),JSON.stringify(_notes)); }catch(e){} }
+function _npLoad(cb){
+  if(!_currentUser){ _notes=[]; if(cb) cb(); return; }
+  var email=_currentUser.email;
+  _supaFetch('notes?user_email=eq.'+encodeURIComponent(email)+'&select=data')
+    .then(function(r){ return r.json(); })
+    .then(function(rows){
+      if(rows&&rows.length&&rows[0].data){ try{ _notes=JSON.parse(rows[0].data); }catch(e){ _notes=[]; } }
+      else { _notes=[]; }
+      if(cb) cb();
+    })
+    .catch(function(e){ _notes=[]; if(cb) cb(); });
+}
+function _npSave(cb){
+  if(!_currentUser){ if(cb) cb(); return; }
+  var email=_currentUser.email;
+  var payload={id:'notes_'+email, user_email:email, data:JSON.stringify(_notes), updated_at:new Date().toISOString()};
+  _supaFetch('notes?id=eq.'+encodeURIComponent('notes_'+email), {method:'DELETE'})
+    .then(function(){ return _supaFetch('notes', {method:'POST', body:JSON.stringify(payload)}); })
+    .then(function(){ if(cb) cb(); })
+    .catch(function(e){ console.error('saveNotes error',e); if(cb) cb(); });
+}
 function _npGenId(){ return 'n_'+Date.now()+'_'+Math.random().toString(36).slice(2,5); }
 
 function toggleNotepad(){
   _npOpen=!_npOpen;
   var p=document.getElementById('np-panel'); if(p) p.classList.toggle('open',_npOpen);
-  if(_npOpen){ _npLoad(); _loadProjects(); _npPopulateProjects(); npRender(); }
+  if(_npOpen){ _npLoad(function(){ _loadProjects(function(){ _npPopulateProjects(); npRender(); }); }); }
 }
 
 function _npPopulateProjects(){
@@ -7655,7 +7740,7 @@ function npSaveNote(){
   } else {
     _notes.unshift({ id:_npGenId(), title:title, content:content, color:_npColor, projId:projId, date:now });
   }
-  _npSave(); npCloseModal(); npRender();
+  _npSave(); npCloseModal(); npRender();  // save is fire-and-forget; render uses in-memory _notes
 }
 
 function npDeleteNote(id){
@@ -7705,16 +7790,32 @@ document.addEventListener('keydown',function(e){
 
 
 // ══════════════════════════════════════════════════════════
+// SUPABASE CONFIG
+// ══════════════════════════════════════════════════════════
+var SUPA_URL = 'https://exekwnqqznfkwmhhpknw.supabase.co';
+var SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV4ZWt3bnFxem5ma3dtaGhwa253Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTMxNjkzMDcsImV4cCI6MjEwODc0NTMwN30.NggzOIS67T2839xF6tkDCY0zNHx1cc_ZIhg_BDB2H84';
+
+function _supaFetch(path, opts){
+  return fetch(SUPA_URL+'/rest/v1/'+path, Object.assign({
+    headers:{
+      'apikey': SUPA_KEY,
+      'Authorization': 'Bearer '+SUPA_KEY,
+      'Content-Type': 'application/json',
+      'Prefer': 'return=representation'
+    }
+  }, opts || {}));
+}
+
+// ══════════════════════════════════════════════════════════
 // AUTENTICAÇÃO
 // ══════════════════════════════════════════════════════════
 var _users = [];
 var _currentUser = null;
 
 function _authLoad(){
-  try{ var r=localStorage.getItem('audax_users'); _users=r?JSON.parse(r):[]; }catch(e){ _users=[]; }
   try{ var s=sessionStorage.getItem('audax_session'); _currentUser=s?JSON.parse(s):null; }catch(e){ _currentUser=null; }
 }
-function _authSaveUsers(){ try{ localStorage.setItem('audax_users',JSON.stringify(_users)); }catch(e){} }
+function _authSaveUsers(){ /* no-op: users stored in Supabase */ }
 function _authSaveSession(u){ try{ sessionStorage.setItem('audax_session',JSON.stringify(u)); }catch(e){} }
 
 function authTab(tab){
@@ -7728,11 +7829,20 @@ function doLogin(){
   var email = document.getElementById('a-login-email').value.trim().toLowerCase();
   var pass  = document.getElementById('a-login-pass').value;
   var err   = document.getElementById('a-login-err');
+  var btn   = document.querySelector('#aform-login button[onclick]');
   if(!email||!pass){ err.textContent='Preencha e-mail e senha.'; return; }
-  var user  = _users.find(function(u){ return u.email===email && u.pass===pass; });
-  if(!user){ err.textContent='E-mail ou senha incorretos.'; return; }
-  _currentUser = user; _authSaveSession(user); err.textContent='';
-  enterPortal(user);
+  err.textContent='Entrando...';
+  if(btn) btn.disabled=true;
+  _supaFetch('users?email=eq.'+encodeURIComponent(email)+'&pass=eq.'+encodeURIComponent(pass)+'&select=*')
+    .then(function(r){ return r.json(); })
+    .then(function(rows){
+      if(btn) btn.disabled=false;
+      if(!rows||!rows.length){ err.textContent='E-mail ou senha incorretos.'; return; }
+      var user=rows[0];
+      _currentUser=user; _authSaveSession(user); err.textContent='';
+      enterPortal(user);
+    })
+    .catch(function(e){ if(btn) btn.disabled=false; err.textContent='Erro de conexão. Tente novamente.'; });
 }
 
 function doRegister(){
@@ -7741,13 +7851,28 @@ function doRegister(){
   var setor = document.getElementById('a-reg-setor').value;
   var pass  = document.getElementById('a-reg-pass').value;
   var err   = document.getElementById('a-reg-err');
+  var btn   = document.querySelector('#aform-register button[onclick]');
   if(!nome||!email||!setor||!pass){ err.textContent='Preencha todos os campos.'; return; }
   if(pass.length<6){ err.textContent='Senha deve ter mínimo 6 caracteres.'; return; }
-  if(_users.find(function(u){return u.email===email;})){ err.textContent='E-mail já cadastrado.'; return; }
-  var user={nome:nome,email:email,setor:setor,pass:pass};
-  _users.push(user); _authSaveUsers();
-  _currentUser=user; _authSaveSession(user); err.textContent='';
-  enterPortal(user);
+  err.textContent='Cadastrando...';
+  if(btn) btn.disabled=true;
+  // Check if email already exists
+  _supaFetch('users?email=eq.'+encodeURIComponent(email)+'&select=email')
+    .then(function(r){ return r.json(); })
+    .then(function(rows){
+      if(rows&&rows.length){ if(btn) btn.disabled=false; err.textContent='E-mail já cadastrado.'; return; }
+      var user={nome:nome,email:email,setor:setor,pass:pass};
+      return _supaFetch('users',{method:'POST',body:JSON.stringify(user)})
+        .then(function(r){ return r.json(); })
+        .then(function(res){
+          if(btn) btn.disabled=false;
+          var created=(Array.isArray(res)?res[0]:res);
+          if(!created||created.code){ err.textContent='Erro ao cadastrar. Tente novamente.'; return; }
+          _currentUser=created; _authSaveSession(created); err.textContent='';
+          enterPortal(created);
+        });
+    })
+    .catch(function(e){ if(btn) btn.disabled=false; err.textContent='Erro de conexão. Tente novamente.'; });
 }
 
 // ── Tab visibility by setor ───────────────────────────────
@@ -7832,8 +7957,8 @@ function amsSubTab(id, btn){
   });
   document.querySelectorAll('#tab-amostras .bom-subtab').forEach(function(b){ b.classList.remove('active'); });
   btn.classList.add('active');
-  if(id==='calendario'){ _loadAmostras(); renderAmsCalendar(); }
-  if(id==='graficos')  { _loadAmostras(); renderAmsGraficos(); }
+  if(id==='calendario'){ _loadAmostras(function(){ renderAmsCalendar(); }); }
+  if(id==='graficos')  { _loadAmostras(function(){ renderAmsGraficos(); }); }
 
 }
 function amsCalNav(dir){
@@ -8337,9 +8462,9 @@ document.addEventListener('DOMContentLoaded', function(){
     if(e.target===this) closeAmostraModal();
   });
 
-  _loadProjects();
-  _loadAmostras();
-  _npLoad(); npRender();
+  _loadProjects(function(){ _renderKanbanList(); });
+  _loadAmostras();  // pre-load for when user navigates to amostras tab
+  _npLoad(function(){ npRender(); });
   _checkAutoReport();
   _checkSextaFeira();
 
@@ -8521,7 +8646,6 @@ function atvCreateProject(){
   var nome=prompt('Nome do novo projeto:');
   if(!nome||!nome.trim()) return;
   var cliente=document.getElementById('atv-cliente').value.trim();
-  _loadProjects();
   var newProj={
     id:'p_'+Date.now()+'_'+Math.random().toString(36).slice(2,5),
     nome:nome.trim(), cliente:cliente, contato:'', engenheiro:'',
@@ -8581,7 +8705,9 @@ function _relInit(){
 function relGerar(){
   var mes=parseInt(document.getElementById('rel-mes').value);
   var ano=parseInt(document.getElementById('rel-ano').value);
-  _loadAmostras(); _loadProjects();
+  _loadAmostras(function(){ _loadProjects(function(){ _relGerarComDados(mes, ano); }); });
+}
+function _relGerarComDados(mes, ano){
 
   var MESES=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
   document.getElementById('rel-periodo-label').textContent='Período: '+MESES[mes-1]+' '+ano;
@@ -8733,7 +8859,9 @@ function relTab(id, btn){
 }
 
 function relGerarKanban(){
-  _loadProjects();
+  _loadProjects(function(){ _relGerarKanbanComDados(); });
+}
+function _relGerarKanbanComDados(){
   var STLBL={todo:'TO DO',doing:'DOING',onhold:'ON HOLD',done:'DONE'};
   var STCOL={todo:'#6b7280',doing:'#0070C0',onhold:'#e09900',done:'#22c55e'};
   var PRIO={low:'Baixa',medium:'Média',high:'Alta',critical:'Crítica'};
@@ -8832,11 +8960,16 @@ function _checkAutoReport(){
   var key = 'audax_rel_sent_' + now.getFullYear() + '_' + now.getMonth();
   if(localStorage.getItem(key)) return;
 
-  // Aguardar login + dados carregados
+  // Aguardar login + dados carregados, então buscar do Supabase
   setTimeout(function(){
-    _loadAmostras(); _loadProjects(); _loadActivities();
-    var dados = _buildReportData();
-    _showAutoReportModal(dados, key);
+    _loadAmostras(function(){
+      _loadProjects(function(){
+        _loadActivities(function(){
+          var dados = _buildReportData();
+          _showAutoReportModal(dados, key);
+        });
+      });
+    });
   }, 2000);
 }
 
@@ -8990,11 +9123,12 @@ function _sendReportEmail(dados, storageKey, overlay, btn){
 
 // ── Botão manual para forçar envio (nos Relatórios) ──
 function relEnviarEmail(){
-  _loadAmostras(); _loadProjects(); _loadActivities();
-  var dados = _buildReportData();
-  var now   = new Date();
-  var key   = 'audax_rel_sent_manual_'+Date.now();
-  _showAutoReportModal(dados, key);
+  _loadAmostras(function(){ _loadProjects(function(){ _loadActivities(function(){
+    var dados = _buildReportData();
+    var now   = new Date();
+    var key   = 'audax_rel_sent_manual_'+Date.now();
+    _showAutoReportModal(dados, key);
+  }); }); });
 }
 
 
@@ -9052,7 +9186,7 @@ function _checkSextaFeira(){
   var key = 'audax_atv_sent_'+now.getFullYear()+'_'+(now.getMonth()+1)+'_'+now.getDate();
   if(localStorage.getItem(key)) return;
 
-  _loadActivities();
+  _loadActivities(function(){
   var atvDone    = _activities.filter(function(a){ return a.status==='done'; });
   var atvDoing   = _activities.filter(function(a){ return a.status==='doing'; });
   var atvPending = _activities.filter(function(a){ return a.status==='pending'; });
@@ -9074,6 +9208,7 @@ function _checkSextaFeira(){
   };
 
   _showAtvReportModal(dados, key);
+  });
 }
 
 function _showAtvReportModal(dados, storageKey){
