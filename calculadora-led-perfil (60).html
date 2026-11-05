@@ -527,6 +527,19 @@ mark.bom-hl{background:#fff3c4;color:#92400e;border-radius:2px;padding:0 1px;fon
 .ams-fase-btn:hover{border-color:var(--blue);color:var(--blue)}
 .ams-fase-btn.selected{background:var(--blue);border-color:var(--blue);color:#fff}
 
+/* ── Fluxo do Projeto ── */
+.pm-fluxo-section{margin-top:20px;padding-top:16px;border-top:1px solid var(--g100)}
+.pm-fluxo-title{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--g500);margin-bottom:10px}
+.pm-fluxo-list{display:flex;flex-direction:column;gap:6px}
+.pm-fluxo-item{display:flex;align-items:flex-start;gap:10px;background:var(--g50);border:1px solid var(--g200);border-radius:8px;padding:9px 12px;transition:border-color .15s}
+.pm-fluxo-item:has(.pm-fluxo-cb:checked){background:#f0fdf4;border-color:#86efac}
+.pm-fluxo-cb{width:16px;height:16px;accent-color:var(--green);cursor:pointer;flex-shrink:0;margin-top:2px}
+.pm-fluxo-right{display:flex;flex-direction:column;gap:4px;flex:1}
+.pm-fluxo-label{font-size:12px;font-weight:600;color:var(--g700);cursor:pointer;line-height:1.3}
+.pm-fluxo-obs{width:100%;border:1px solid var(--g200);border-radius:5px;padding:4px 8px;font-size:11px;color:var(--g700);background:var(--white);resize:none;font-family:inherit;line-height:1.4}
+.pm-fluxo-obs:focus{outline:none;border-color:var(--blue-l)}
+.pm-fluxo-obs::placeholder{color:var(--g400)}
+
 /* Tabela de fases no modal */
 .ams-fases-table{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:4px}
 .ams-fase-row{display:flex;align-items:center;justify-content:space-between;background:var(--g50);border:1px solid var(--g200);border-radius:7px;padding:7px 12px;gap:8px}
@@ -6880,6 +6893,52 @@ function onDrop(event, newStatus){
   }
 }
 
+// ── Fluxo do Projeto ──────────────────────────────────────
+var FLUXO_ETAPAS = [
+  'Desenho do cliente',
+  'Tensão de alimentação',
+  'Potência',
+  'Dimensional total da lâmpada',
+  'Dimensional chicote',
+  'Chicote: terminal ou somente decapado',
+  'Validação das informações acima',
+  'Realização de BOM',
+  'Realização de layout (se necessário)',
+  'Realizar desenho do produto',
+  'Amostras (se necessário)',
+  'Peça padrão — amostra aprovada',
+  'Liberação de desenho e instrução de trabalho'
+];
+
+function _fluxoRender(fluxo){
+  var list = document.getElementById('pm-fluxo-list');
+  if(!list) return;
+  list.innerHTML = '';
+  FLUXO_ETAPAS.forEach(function(etapa, i){
+    var estado = (fluxo && fluxo[i]) || {ok:false, obs:''};
+    var item = document.createElement('div');
+    item.className = 'pm-fluxo-item';
+    var cbId = 'fluxo-cb-'+i;
+    item.innerHTML =
+      '<input type="checkbox" class="pm-fluxo-cb" id="'+cbId+'"'+(estado.ok?' checked':'')+'>'+
+      '<div class="pm-fluxo-right">'+
+        '<label class="pm-fluxo-label" for="'+cbId+'">'+(i+1)+'. '+etapa+'</label>'+
+        '<textarea class="pm-fluxo-obs" id="fluxo-obs-'+i+'" rows="1" placeholder="Observação…">'+((estado.obs)||'')+'</textarea>'+
+      '</div>';
+    list.appendChild(item);
+  });
+}
+
+function _fluxoRead(){
+  var fluxo = [];
+  FLUXO_ETAPAS.forEach(function(_, i){
+    var cb = document.getElementById('fluxo-cb-'+i);
+    var obs = document.getElementById('fluxo-obs-'+i);
+    fluxo.push({ok: cb ? cb.checked : false, obs: obs ? obs.value.trim() : ''});
+  });
+  return fluxo;
+}
+
 // ── Modal ─────────────────────────────────────────────────
 function openNewProject(defaultStatus){
   _editingId = null;
@@ -6898,6 +6957,7 @@ function openNewProject(defaultStatus){
   document.getElementById('pm-title-display').textContent='Novo Projeto';
   document.getElementById('pm-status-badge').textContent=STATUS_LABEL[defaultStatus||'todo'];
   document.getElementById('pm-del-btn').style.display='none';
+  _fluxoRender(null);
   document.getElementById('proj-modal-overlay').style.display='';
 }
 
@@ -6920,6 +6980,7 @@ function openProject(id){
   document.getElementById('pm-title-display').textContent=p.nome||'Projeto';
   document.getElementById('pm-status-badge').textContent=STATUS_LABEL[p.status]||'';
   document.getElementById('pm-del-btn').style.display='';
+  _fluxoRender(p.fluxo||null);
   document.getElementById('proj-modal-overlay').style.display='';
 }
 
@@ -6947,6 +7008,7 @@ function saveProject(){
       p.produtos=document.getElementById('pm-produtos').value.trim();
       p.descricao=document.getElementById('pm-descricao').value.trim();
       p.comentarios=document.getElementById('pm-comentarios').value.trim();
+      p.fluxo=_fluxoRead();
       p.atualizado=now;
     }
   } else {
@@ -6964,6 +7026,7 @@ function saveProject(){
       produtos:document.getElementById('pm-produtos').value.trim(),
       descricao:document.getElementById('pm-descricao').value.trim(),
       comentarios:document.getElementById('pm-comentarios').value.trim(),
+      fluxo:_fluxoRead(),
     });
   }
   _saveProjects();
@@ -9358,6 +9421,12 @@ setInterval(_checkSextaFeira, 60000);
           <label>Comentários / Observações</label>
           <textarea id="pm-comentarios" rows="3" placeholder="Atualizações, pendências, notas…"></textarea>
         </div>
+      </div>
+
+      <!-- Fluxo do Projeto -->
+      <div class="pm-fluxo-section" id="pm-fluxo-section">
+        <div class="pm-fluxo-title">Fluxo do Projeto — Lâmpadas LED Refrigeração</div>
+        <div class="pm-fluxo-list" id="pm-fluxo-list"></div>
       </div>
     </div>
     <div class="proj-modal-footer">
