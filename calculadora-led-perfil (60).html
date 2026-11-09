@@ -527,6 +527,7 @@ mark.bom-hl{background:#fff3c4;color:#92400e;border-radius:2px;padding:0 1px;fon
 .ams-fase-btn:hover{border-color:var(--blue);color:var(--blue)}
 .ams-fase-btn.selected{background:var(--blue);border-color:var(--blue);color:#fff}
 
+@keyframes spin{to{transform:rotate(360deg)}}
 /* ── Fluxo do Projeto ── */
 .pm-fluxo-section{margin-top:20px;padding-top:16px;border-top:1px solid var(--g100)}
 .pm-fluxo-title{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--g500);margin-bottom:10px}
@@ -1184,8 +1185,11 @@ function _checkSextaFeira(){
 function _showAtvReportModal(dados, storageKey){
   var overlay = document.createElement('div');
   overlay.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9000;display:flex;align-items:center;justify-content:center';
-  overlay.innerHTML='<div style="background:#fff;border-radius:14px;max-width:500px;width:95%;box-shadow:0 20px 60px rgba(0,0,0,.3);overflow:hidden">'
-    +'<div style="background:linear-gradient(135deg,#1e40af,#1e3a8a);padding:20px 24px;color:#fff">'
+  overlay.onclick = function(e){ if(e.target===overlay){ document.body.removeChild(overlay); } };
+  var inner = document.createElement('div');
+  inner.style.cssText='background:#fff;border-radius:14px;max-width:500px;width:95%;box-shadow:0 20px 60px rgba(0,0,0,.3);overflow:hidden';
+  inner.onclick = function(e){ e.stopPropagation(); };
+  inner.innerHTML='<div style="background:linear-gradient(135deg,#1e40af,#1e3a8a);padding:20px 24px;color:#fff">'
     +'<div style="font-size:11px;opacity:.7;letter-spacing:.1em;text-transform:uppercase;margin-bottom:4px">Relatório Semanal de Atividades</div>'
     +'<div style="font-family:Barlow Condensed,sans-serif;font-size:20px;font-weight:700">'+dados.periodo+'</div>'
     +'</div>'
@@ -1200,15 +1204,15 @@ function _showAtvReportModal(dados, storageKey){
     +'<div style="font-size:11px;color:#6b7280;margin-bottom:16px">Será enviado para: <strong>bruno.freitas@audaxled.com</strong></div>'
     +'</div>'
     +'<div style="padding:14px 24px;border-top:1px solid #e5e7eb;display:flex;justify-content:flex-end;gap:10px;background:#f9fafb">'
-    +'<button id="atv-rep-skip" style="padding:8px 18px;background:#f3f4f6;border:1px solid #d1d5db;border-radius:7px;font-family:Barlow,sans-serif;font-size:12px;font-weight:600;cursor:pointer;color:#374151">Agora não</button>'
-    +'<button id="atv-rep-send" style="padding:8px 20px;background:#1e40af;color:#fff;border:none;border-radius:7px;font-family:Barlow,sans-serif;font-size:12px;font-weight:700;cursor:pointer">📧 Enviar Relatório</button>'
-    +'</div>'
+    +'<button class="atv-rep-skip-btn" style="padding:8px 18px;background:#f3f4f6;border:1px solid #d1d5db;border-radius:7px;font-family:Barlow,sans-serif;font-size:12px;font-weight:600;cursor:pointer;color:#374151">Agora não</button>'
+    +'<button class="atv-rep-send-btn" style="padding:8px 20px;background:#1e40af;color:#fff;border:none;border-radius:7px;font-family:Barlow,sans-serif;font-size:12px;font-weight:700;cursor:pointer">📧 Enviar Relatório</button>'
     +'</div>';
+  overlay.appendChild(inner);
 
   document.body.appendChild(overlay);
-  document.getElementById('atv-rep-skip').onclick = function(){ document.body.removeChild(overlay); };
-  document.getElementById('atv-rep-send').onclick = function(){
-    var btn = document.getElementById('atv-rep-send');
+  inner.querySelector('.atv-rep-skip-btn').onclick = function(){ document.body.removeChild(overlay); };
+  inner.querySelector('.atv-rep-send-btn').onclick = function(){
+    var btn = inner.querySelector('.atv-rep-send-btn');
     btn.textContent='⏳ Enviando…'; btn.disabled=true;
     _sendAtvReportEmail(dados, storageKey, overlay, btn);
   };
@@ -1528,8 +1532,11 @@ function _checkSextaFeira(){
 function _showAtvReportModal(dados, storageKey){
   var overlay = document.createElement('div');
   overlay.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9000;display:flex;align-items:center;justify-content:center';
-  overlay.innerHTML='<div style="background:#fff;border-radius:14px;max-width:500px;width:95%;box-shadow:0 20px 60px rgba(0,0,0,.3);overflow:hidden">'
-    +'<div style="background:linear-gradient(135deg,#1e40af,#1e3a8a);padding:20px 24px;color:#fff">'
+  overlay.onclick = function(e){ if(e.target===overlay){ document.body.removeChild(overlay); } };
+  var inner = document.createElement('div');
+  inner.style.cssText='background:#fff;border-radius:14px;max-width:500px;width:95%;box-shadow:0 20px 60px rgba(0,0,0,.3);overflow:hidden';
+  inner.onclick = function(e){ e.stopPropagation(); };
+  inner.innerHTML='<div style="background:linear-gradient(135deg,#1e40af,#1e3a8a);padding:20px 24px;color:#fff">'
     +'<div style="font-size:11px;opacity:.7;letter-spacing:.1em;text-transform:uppercase;margin-bottom:4px">Relatório Semanal de Atividades</div>'
     +'<div style="font-family:Barlow Condensed,sans-serif;font-size:20px;font-weight:700">'+dados.periodo+'</div>'
     +'</div>'
@@ -1544,15 +1551,15 @@ function _showAtvReportModal(dados, storageKey){
     +'<div style="font-size:11px;color:#6b7280;margin-bottom:16px">Será enviado para: <strong>bruno.freitas@audaxled.com</strong></div>'
     +'</div>'
     +'<div style="padding:14px 24px;border-top:1px solid #e5e7eb;display:flex;justify-content:flex-end;gap:10px;background:#f9fafb">'
-    +'<button id="atv-rep-skip" style="padding:8px 18px;background:#f3f4f6;border:1px solid #d1d5db;border-radius:7px;font-family:Barlow,sans-serif;font-size:12px;font-weight:600;cursor:pointer;color:#374151">Agora não</button>'
-    +'<button id="atv-rep-send" style="padding:8px 20px;background:#1e40af;color:#fff;border:none;border-radius:7px;font-family:Barlow,sans-serif;font-size:12px;font-weight:700;cursor:pointer">📧 Enviar Relatório</button>'
-    +'</div>'
+    +'<button class="atv-rep-skip-btn" style="padding:8px 18px;background:#f3f4f6;border:1px solid #d1d5db;border-radius:7px;font-family:Barlow,sans-serif;font-size:12px;font-weight:600;cursor:pointer;color:#374151">Agora não</button>'
+    +'<button class="atv-rep-send-btn" style="padding:8px 20px;background:#1e40af;color:#fff;border:none;border-radius:7px;font-family:Barlow,sans-serif;font-size:12px;font-weight:700;cursor:pointer">📧 Enviar Relatório</button>'
     +'</div>';
+  overlay.appendChild(inner);
 
   document.body.appendChild(overlay);
-  document.getElementById('atv-rep-skip').onclick = function(){ document.body.removeChild(overlay); };
-  document.getElementById('atv-rep-send').onclick = function(){
-    var btn = document.getElementById('atv-rep-send');
+  inner.querySelector('.atv-rep-skip-btn').onclick = function(){ document.body.removeChild(overlay); };
+  inner.querySelector('.atv-rep-send-btn').onclick = function(){
+    var btn = inner.querySelector('.atv-rep-send-btn');
     btn.textContent='⏳ Enviando…'; btn.disabled=true;
     _sendAtvReportEmail(dados, storageKey, overlay, btn);
   };
@@ -1682,8 +1689,11 @@ function _checkSextaFeira(){
 function _showAtvReportModal(dados, storageKey){
   var overlay = document.createElement('div');
   overlay.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9000;display:flex;align-items:center;justify-content:center';
-  overlay.innerHTML='<div style="background:#fff;border-radius:14px;max-width:500px;width:95%;box-shadow:0 20px 60px rgba(0,0,0,.3);overflow:hidden">'
-    +'<div style="background:linear-gradient(135deg,#1e40af,#1e3a8a);padding:20px 24px;color:#fff">'
+  overlay.onclick = function(e){ if(e.target===overlay){ document.body.removeChild(overlay); } };
+  var inner = document.createElement('div');
+  inner.style.cssText='background:#fff;border-radius:14px;max-width:500px;width:95%;box-shadow:0 20px 60px rgba(0,0,0,.3);overflow:hidden';
+  inner.onclick = function(e){ e.stopPropagation(); };
+  inner.innerHTML='<div style="background:linear-gradient(135deg,#1e40af,#1e3a8a);padding:20px 24px;color:#fff">'
     +'<div style="font-size:11px;opacity:.7;letter-spacing:.1em;text-transform:uppercase;margin-bottom:4px">Relatório Semanal de Atividades</div>'
     +'<div style="font-family:Barlow Condensed,sans-serif;font-size:20px;font-weight:700">'+dados.periodo+'</div>'
     +'</div>'
@@ -1698,15 +1708,15 @@ function _showAtvReportModal(dados, storageKey){
     +'<div style="font-size:11px;color:#6b7280;margin-bottom:16px">Será enviado para: <strong>bruno.freitas@audaxled.com</strong></div>'
     +'</div>'
     +'<div style="padding:14px 24px;border-top:1px solid #e5e7eb;display:flex;justify-content:flex-end;gap:10px;background:#f9fafb">'
-    +'<button id="atv-rep-skip" style="padding:8px 18px;background:#f3f4f6;border:1px solid #d1d5db;border-radius:7px;font-family:Barlow,sans-serif;font-size:12px;font-weight:600;cursor:pointer;color:#374151">Agora não</button>'
-    +'<button id="atv-rep-send" style="padding:8px 20px;background:#1e40af;color:#fff;border:none;border-radius:7px;font-family:Barlow,sans-serif;font-size:12px;font-weight:700;cursor:pointer">📧 Enviar Relatório</button>'
-    +'</div>'
+    +'<button class="atv-rep-skip-btn" style="padding:8px 18px;background:#f3f4f6;border:1px solid #d1d5db;border-radius:7px;font-family:Barlow,sans-serif;font-size:12px;font-weight:600;cursor:pointer;color:#374151">Agora não</button>'
+    +'<button class="atv-rep-send-btn" style="padding:8px 20px;background:#1e40af;color:#fff;border:none;border-radius:7px;font-family:Barlow,sans-serif;font-size:12px;font-weight:700;cursor:pointer">📧 Enviar Relatório</button>'
     +'</div>';
+  overlay.appendChild(inner);
 
   document.body.appendChild(overlay);
-  document.getElementById('atv-rep-skip').onclick = function(){ document.body.removeChild(overlay); };
-  document.getElementById('atv-rep-send').onclick = function(){
-    var btn = document.getElementById('atv-rep-send');
+  inner.querySelector('.atv-rep-skip-btn').onclick = function(){ document.body.removeChild(overlay); };
+  inner.querySelector('.atv-rep-send-btn').onclick = function(){
+    var btn = inner.querySelector('.atv-rep-send-btn');
     btn.textContent='⏳ Enviando…'; btn.disabled=true;
     _sendAtvReportEmail(dados, storageKey, overlay, btn);
   };
@@ -1836,8 +1846,11 @@ function _checkSextaFeira(){
 function _showAtvReportModal(dados, storageKey){
   var overlay = document.createElement('div');
   overlay.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9000;display:flex;align-items:center;justify-content:center';
-  overlay.innerHTML='<div style="background:#fff;border-radius:14px;max-width:500px;width:95%;box-shadow:0 20px 60px rgba(0,0,0,.3);overflow:hidden">'
-    +'<div style="background:linear-gradient(135deg,#1e40af,#1e3a8a);padding:20px 24px;color:#fff">'
+  overlay.onclick = function(e){ if(e.target===overlay){ document.body.removeChild(overlay); } };
+  var inner = document.createElement('div');
+  inner.style.cssText='background:#fff;border-radius:14px;max-width:500px;width:95%;box-shadow:0 20px 60px rgba(0,0,0,.3);overflow:hidden';
+  inner.onclick = function(e){ e.stopPropagation(); };
+  inner.innerHTML='<div style="background:linear-gradient(135deg,#1e40af,#1e3a8a);padding:20px 24px;color:#fff">'
     +'<div style="font-size:11px;opacity:.7;letter-spacing:.1em;text-transform:uppercase;margin-bottom:4px">Relatório Semanal de Atividades</div>'
     +'<div style="font-family:Barlow Condensed,sans-serif;font-size:20px;font-weight:700">'+dados.periodo+'</div>'
     +'</div>'
@@ -1852,15 +1865,15 @@ function _showAtvReportModal(dados, storageKey){
     +'<div style="font-size:11px;color:#6b7280;margin-bottom:16px">Será enviado para: <strong>bruno.freitas@audaxled.com</strong></div>'
     +'</div>'
     +'<div style="padding:14px 24px;border-top:1px solid #e5e7eb;display:flex;justify-content:flex-end;gap:10px;background:#f9fafb">'
-    +'<button id="atv-rep-skip" style="padding:8px 18px;background:#f3f4f6;border:1px solid #d1d5db;border-radius:7px;font-family:Barlow,sans-serif;font-size:12px;font-weight:600;cursor:pointer;color:#374151">Agora não</button>'
-    +'<button id="atv-rep-send" style="padding:8px 20px;background:#1e40af;color:#fff;border:none;border-radius:7px;font-family:Barlow,sans-serif;font-size:12px;font-weight:700;cursor:pointer">📧 Enviar Relatório</button>'
-    +'</div>'
+    +'<button class="atv-rep-skip-btn" style="padding:8px 18px;background:#f3f4f6;border:1px solid #d1d5db;border-radius:7px;font-family:Barlow,sans-serif;font-size:12px;font-weight:600;cursor:pointer;color:#374151">Agora não</button>'
+    +'<button class="atv-rep-send-btn" style="padding:8px 20px;background:#1e40af;color:#fff;border:none;border-radius:7px;font-family:Barlow,sans-serif;font-size:12px;font-weight:700;cursor:pointer">📧 Enviar Relatório</button>'
     +'</div>';
+  overlay.appendChild(inner);
 
   document.body.appendChild(overlay);
-  document.getElementById('atv-rep-skip').onclick = function(){ document.body.removeChild(overlay); };
-  document.getElementById('atv-rep-send').onclick = function(){
-    var btn = document.getElementById('atv-rep-send');
+  inner.querySelector('.atv-rep-skip-btn').onclick = function(){ document.body.removeChild(overlay); };
+  inner.querySelector('.atv-rep-send-btn').onclick = function(){
+    var btn = inner.querySelector('.atv-rep-send-btn');
     btn.textContent='⏳ Enviando…'; btn.disabled=true;
     _sendAtvReportEmail(dados, storageKey, overlay, btn);
   };
@@ -1954,7 +1967,10 @@ setInterval(_checkSextaFeira, 60000);
         </div>
         <div class="auth-field">
           <label class="auth-label">Senha</label>
-          <input type="password" class="auth-input" id="a-login-pass" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()">
+          <div style="position:relative">
+            <input type="password" class="auth-input" id="a-login-pass" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()" style="padding-right:40px">
+            <button type="button" onclick="var i=document.getElementById('a-login-pass');i.type=i.type==='password'?'text':'password';this.innerHTML=i.type==='password'?'👁':'🙈'" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:16px;padding:0;line-height:1">👁</button>
+          </div>
         </div>
         <button class="auth-btn" onclick="doLogin()">ENTRAR</button>
         <div class="auth-err" id="a-login-err"></div>
@@ -1986,7 +2002,10 @@ setInterval(_checkSextaFeira, 60000);
         </div>
         <div class="auth-field">
           <label class="auth-label">Senha</label>
-          <input type="password" class="auth-input" id="a-reg-pass" placeholder="Mínimo 6 caracteres">
+          <div style="position:relative">
+            <input type="password" class="auth-input" id="a-reg-pass" placeholder="Mínimo 6 caracteres" style="padding-right:40px">
+            <button type="button" onclick="var i=document.getElementById('a-reg-pass');i.type=i.type==='password'?'text':'password';this.innerHTML=i.type==='password'?'👁':'🙈'" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:16px;padding:0;line-height:1">👁</button>
+          </div>
         </div>
         <button class="auth-btn" onclick="doRegister()" style="background:linear-gradient(135deg,#00853E 0%,#005a2b 100%);box-shadow:0 4px 20px rgba(0,133,62,.4)">CRIAR CONTA</button>
         <div class="auth-err" id="a-reg-err"></div>
@@ -4418,6 +4437,15 @@ setInterval(_checkSextaFeira, 60000);
   <!-- ═══ AMOSTRAS ═══ -->
   <div class="panel" id="tab-amostras">
 
+    <!-- Barra superior amostras -->
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0">
+      <div></div>
+      <button onclick="_reloadAmostras()" title="Atualizar amostras sem recarregar a página" style="display:flex;align-items:center;gap:6px;padding:6px 14px;background:var(--g50);border:1px solid var(--g200);border-radius:7px;font-size:11px;font-weight:600;color:var(--g600);cursor:pointer;transition:all .15s" onmouseover="this.style.background='var(--g100)'" onmouseout="this.style.background='var(--g50)'">
+        <svg id="ams-reload-icon" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+        Atualizar amostras
+      </button>
+    </div>
+
     <!-- Sub-abas Amostras -->
     <div class="bom-subtabs" style="margin-bottom:0">
       <button class="bom-subtab active" id="amst-lista" onclick="amsSubTab('lista',this)">
@@ -4730,6 +4758,10 @@ setInterval(_checkSextaFeira, 60000);
       <button class="proj-new-btn" onclick="atvOpenNew()">
         <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
         Nova Atividade
+      </button>
+      <button onclick="atvVerHistorico()" style="display:inline-flex;align-items:center;gap:6px;padding:7px 14px;background:#f1f5f9;border:1.5px solid #cbd5e1;border-radius:8px;font-family:Barlow,sans-serif;font-size:12px;font-weight:700;color:#475569;cursor:pointer">
+        <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        Histórico Semanal
       </button>
     </div>
 
@@ -7081,6 +7113,16 @@ function _saveAmostras(cb){
     .then(function(){ if(cb) cb(); })
     .catch(function(e){ console.error('saveAmostras error',e); if(cb) cb(); });
 }
+function _reloadAmostras(){
+  var icon = document.getElementById('ams-reload-icon');
+  if(icon) icon.style.animation='spin .7s linear infinite';
+  _loadAmostras(function(){
+    if(icon) icon.style.animation='';
+    _renderAmostrasList();
+    showPopup('Amostras atualizadas','Dados recarregados do servidor.','ok');
+  });
+}
+
 function _loadAmostras(cb){
   _supaFetch('amostras?id=eq.amostras_shared&select=data')
     .then(function(r){ return r.json(); })
@@ -7416,6 +7458,164 @@ function _saveActivities(cb){
 }
 function _atvGenId(){ return 'atv_'+Date.now()+'_'+Math.random().toString(36).slice(2,5); }
 
+// ══════════════════════════════════════════════════════════
+// HISTÓRICO SEMANAL — reset toda segunda-feira
+// Histórico salvo em notes com id = 'semanas_' + email
+// ══════════════════════════════════════════════════════════
+var _atvSemanas = []; // array de snapshots semanais
+
+function _escHtml(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+function _semISOWeek(d){
+  // Retorna string "AAAA-Wnn" para a data d
+  var date=new Date(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate()));
+  var dayNum=date.getUTCDay()||7;
+  date.setUTCDate(date.getUTCDate()+4-dayNum);
+  var yearStart=new Date(Date.UTC(date.getUTCFullYear(),0,1));
+  var weekNo=Math.ceil((((date-yearStart)/86400000)+1)/7);
+  return date.getUTCFullYear()+'-W'+(weekNo<10?'0':'')+weekNo;
+}
+
+function _semLoadHistorico(cb){
+  if(!_currentUser){ _atvSemanas=[]; if(cb) cb(); return; }
+  var email=_currentUser.email;
+  _supaFetch('notes?id=eq.'+encodeURIComponent('semanas_'+email)+'&select=data')
+    .then(function(r){ return r.json(); })
+    .then(function(rows){
+      if(rows&&rows.length&&rows[0].data){ try{ _atvSemanas=JSON.parse(rows[0].data); }catch(e){ _atvSemanas=[]; } }
+      else { _atvSemanas=[]; }
+      if(cb) cb();
+    })
+    .catch(function(){ _atvSemanas=[]; if(cb) cb(); });
+}
+
+function _semSaveHistorico(cb){
+  if(!_currentUser){ if(cb) cb(); return; }
+  var email=_currentUser.email;
+  var payload={id:'semanas_'+email, user_email:email, data:JSON.stringify(_atvSemanas), updated_at:new Date().toISOString()};
+  _supaFetch('notes?id=eq.'+encodeURIComponent('semanas_'+email), {method:'DELETE'})
+    .then(function(){ return _supaFetch('notes', {method:'POST', body:JSON.stringify(payload)}); })
+    .then(function(){ if(cb) cb(); })
+    .catch(function(e){ console.error('semSave error',e); if(cb) cb(); });
+}
+
+function _semCheckWeekReset(){
+  // Verificar se é uma nova semana desde o último reset
+  var now=new Date();
+  var currentWeek=_semISOWeek(now);
+  var lsKey='audax_sem_reset_'+(_currentUser?_currentUser.email:'');
+  var lastResetWeek=localStorage.getItem(lsKey)||'';
+  if(lastResetWeek===currentWeek) return; // já resetou esta semana
+
+  // É uma nova semana — salvar snapshot da semana anterior antes de zerar
+  _semLoadHistorico(function(){
+    // Calcular totais da semana que passou
+    var snapAtividades=_activities.filter(function(a){
+      return (parseInt(a.tempoH,10)||0)+(parseInt(a.tempoM,10)||0)>0;
+    }).map(function(a){
+      return {id:a.id, desc:a.desc, cliente:a.cliente||'', projId:a.projId||'',
+              tempoH:parseInt(a.tempoH,10)||0, tempoM:parseInt(a.tempoM,10)||0,
+              status:a.status};
+    });
+
+    if(snapAtividades.length>0){
+      // Determinar a semana anterior
+      var prevDate=new Date(now);
+      prevDate.setDate(prevDate.getDate()-7);
+      var prevWeek=_semISOWeek(prevDate);
+
+      // Adicionar snapshot (evitar duplicatas)
+      var exists=_atvSemanas.find(function(s){ return s.semana===prevWeek; });
+      if(!exists){
+        _atvSemanas.unshift({
+          semana: prevWeek,
+          snapData: new Date().toISOString().split('T')[0],
+          atividades: snapAtividades
+        });
+        // Manter apenas 52 semanas de histórico
+        if(_atvSemanas.length>52) _atvSemanas=_atvSemanas.slice(0,52);
+      }
+    }
+
+    // Zerar tempoH e tempoM de todas as atividades
+    _activities.forEach(function(a){ a.tempoH='0'; a.tempoM='0'; });
+
+    // Salvar histórico e atividades zeradas
+    _semSaveHistorico(function(){
+      _saveActivities(function(){
+        localStorage.setItem(lsKey, currentWeek);
+        showPopup('Novo ciclo semanal','Tempos zerados! Histórico da semana anterior salvo em Atividades → Histórico Semanal.','ok');
+        atvRender();
+      });
+    });
+  });
+}
+
+function atvVerHistorico(){
+  _semLoadHistorico(function(){
+    _showSemanaHistoricoModal();
+  });
+}
+
+function _showSemanaHistoricoModal(){
+  var overlay=document.createElement('div');
+  overlay.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9999;display:flex;align-items:center;justify-content:center;padding:16px';
+  overlay.onclick=function(e){ if(e.target===overlay) document.body.removeChild(overlay); };
+
+  var inner=document.createElement('div');
+  inner.style.cssText='background:#fff;border-radius:16px;padding:24px;width:100%;max-width:680px;max-height:80vh;overflow-y:auto;font-family:Barlow,sans-serif';
+  inner.onclick=function(e){ e.stopPropagation(); };
+
+  var MESES=['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+
+  var html='<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">'
+    +'<h3 style="font-family:\'Barlow Condensed\',sans-serif;font-size:20px;font-weight:800;color:#1e293b;margin:0">📊 Histórico Semanal</h3>'
+    +'<button onclick="this.closest(\'div\').parentNode.parentNode.removeChild(this.closest(\'div\').parentNode)" style="background:none;border:none;font-size:20px;cursor:pointer;color:#64748b">✕</button>'
+    +'</div>';
+
+  if(!_atvSemanas||!_atvSemanas.length){
+    html+='<p style="color:#64748b;text-align:center;padding:32px 0">Nenhum histórico disponível ainda.<br>O histórico será gerado automaticamente toda segunda-feira.</p>';
+  } else {
+    _atvSemanas.forEach(function(semSnap){
+      var totalH=0, totalM=0;
+      semSnap.atividades.forEach(function(a){ totalH+=a.tempoH; totalM+=a.tempoM; });
+      var totalMin=totalH*60+totalM;
+      var totalHfmt=Math.floor(totalMin/60);
+      var totalMfmt=totalMin%60;
+
+      // Parse semana "AAAA-Wnn"
+      var semLabel=semSnap.semana||'';
+      var snapLabel=semSnap.snapData||'';
+
+      html+='<div style="border:1px solid #e2e8f0;border-radius:10px;padding:14px 16px;margin-bottom:12px">'
+        +'<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">'
+        +'<div><span style="font-weight:800;font-size:14px;color:#1e293b">Semana '+semLabel+'</span>'
+        +' <span style="font-size:11px;color:#94a3b8;margin-left:8px">salvo em '+snapLabel+'</span></div>'
+        +'<span style="background:#dbeafe;color:#1d4ed8;padding:3px 10px;border-radius:20px;font-size:12px;font-weight:700">Total: '+totalHfmt+'h '+totalMfmt+'min</span>'
+        +'</div>'
+        +'<table style="width:100%;border-collapse:collapse;font-size:12px">'
+        +'<tr style="border-bottom:1px solid #f1f5f9"><th style="text-align:left;padding:4px 8px;color:#64748b;font-weight:600">Atividade</th>'
+        +'<th style="text-align:left;padding:4px 8px;color:#64748b;font-weight:600">Cliente</th>'
+        +'<th style="text-align:right;padding:4px 8px;color:#64748b;font-weight:600">Tempo</th></tr>';
+
+      semSnap.atividades.forEach(function(a){
+        var t=a.tempoH+'h '+(a.tempoM<10?'0':'')+a.tempoM+'min';
+        html+='<tr style="border-bottom:1px solid #f8fafc">'
+          +'<td style="padding:5px 8px;color:#334155">'+_escHtml(a.desc||'')+'</td>'
+          +'<td style="padding:5px 8px;color:#64748b">'+_escHtml(a.cliente||'-')+'</td>'
+          +'<td style="padding:5px 8px;text-align:right;color:#1e293b;font-weight:700">'+t+'</td>'
+          +'</tr>';
+      });
+
+      html+='</table></div>';
+    });
+  }
+
+  inner.innerHTML=html;
+  overlay.appendChild(inner);
+  document.body.appendChild(overlay);
+}
+
 function atvOpenNew(){
   _editingAtvId=null;
   ['atv-desc','atv-cliente','atv-obs'].forEach(function(id){ var el=document.getElementById(id); if(el) el.value=''; });
@@ -7462,14 +7662,16 @@ function atvOpenEdit(id){
 function _atvShowTimerForId(id){
   var box=document.getElementById('atv-timer-box-wrap');
   if(!box) return;
-  // Sem timer ativo: mostrar box em estado reset (pode iniciar novo timer)
+  // Sem timer ativo e sem segundos: mostrar box em estado reset
   if(!_atvTimerRunning && _atvTimerSec===0){
     box.style.display='';
     _atvTimerResetOnOpen();
     return;
   }
-  // Timer ativo NESTA atividade: mostrar e restaurar display
-  if(_atvTimerId===id){
+  // Timer ativo NESTA atividade (ou timer sem dono = atividade nova não salva ainda): mostrar e restaurar display
+  if(_atvTimerId===id || _atvTimerId===null){
+    // Se o timer não tem dono ainda, vincular agora à atividade aberta
+    if(_atvTimerId===null && id) _atvTimerId=id;
     box.style.display='';
     _atvTimerRestoreDisplay();
     return;
@@ -8623,9 +8825,9 @@ function _atvTimerUpdate(){
 
 function atvTimerStart(){
   if(_atvTimerRunning) return;
-  _atvTimerRunning=true;
-  // Vincular o timer à atividade aberta no momento do clique em Start
+  // Vincular o timer à atividade aberta ANTES de marcar como rodando
   if(!_atvTimerId) _atvTimerId = _editingAtvId || null;
+  _atvTimerRunning=true;
   _atvTimerInt=setInterval(function(){ _atvTimerSec++; _atvTimerUpdate(); },1000);
   var disp=document.getElementById('atv-timer-display');
   if(disp){ disp.classList.remove('paused','done'); disp.classList.add('running'); }
@@ -9277,8 +9479,11 @@ function _checkSextaFeira(){
 function _showAtvReportModal(dados, storageKey){
   var overlay = document.createElement('div');
   overlay.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9000;display:flex;align-items:center;justify-content:center';
-  overlay.innerHTML='<div style="background:#fff;border-radius:14px;max-width:500px;width:95%;box-shadow:0 20px 60px rgba(0,0,0,.3);overflow:hidden">'
-    +'<div style="background:linear-gradient(135deg,#1e40af,#1e3a8a);padding:20px 24px;color:#fff">'
+  overlay.onclick = function(e){ if(e.target===overlay){ document.body.removeChild(overlay); } };
+  var inner = document.createElement('div');
+  inner.style.cssText='background:#fff;border-radius:14px;max-width:500px;width:95%;box-shadow:0 20px 60px rgba(0,0,0,.3);overflow:hidden';
+  inner.onclick = function(e){ e.stopPropagation(); };
+  inner.innerHTML='<div style="background:linear-gradient(135deg,#1e40af,#1e3a8a);padding:20px 24px;color:#fff">'
     +'<div style="font-size:11px;opacity:.7;letter-spacing:.1em;text-transform:uppercase;margin-bottom:4px">Relatório Semanal de Atividades</div>'
     +'<div style="font-family:Barlow Condensed,sans-serif;font-size:20px;font-weight:700">'+dados.periodo+'</div>'
     +'</div>'
@@ -9293,15 +9498,15 @@ function _showAtvReportModal(dados, storageKey){
     +'<div style="font-size:11px;color:#6b7280;margin-bottom:16px">Será enviado para: <strong>bruno.freitas@audaxled.com</strong></div>'
     +'</div>'
     +'<div style="padding:14px 24px;border-top:1px solid #e5e7eb;display:flex;justify-content:flex-end;gap:10px;background:#f9fafb">'
-    +'<button id="atv-rep-skip" style="padding:8px 18px;background:#f3f4f6;border:1px solid #d1d5db;border-radius:7px;font-family:Barlow,sans-serif;font-size:12px;font-weight:600;cursor:pointer;color:#374151">Agora não</button>'
-    +'<button id="atv-rep-send" style="padding:8px 20px;background:#1e40af;color:#fff;border:none;border-radius:7px;font-family:Barlow,sans-serif;font-size:12px;font-weight:700;cursor:pointer">📧 Enviar Relatório</button>'
-    +'</div>'
+    +'<button class="atv-rep-skip-btn" style="padding:8px 18px;background:#f3f4f6;border:1px solid #d1d5db;border-radius:7px;font-family:Barlow,sans-serif;font-size:12px;font-weight:600;cursor:pointer;color:#374151">Agora não</button>'
+    +'<button class="atv-rep-send-btn" style="padding:8px 20px;background:#1e40af;color:#fff;border:none;border-radius:7px;font-family:Barlow,sans-serif;font-size:12px;font-weight:700;cursor:pointer">📧 Enviar Relatório</button>'
     +'</div>';
+  overlay.appendChild(inner);
 
   document.body.appendChild(overlay);
-  document.getElementById('atv-rep-skip').onclick = function(){ document.body.removeChild(overlay); };
-  document.getElementById('atv-rep-send').onclick = function(){
-    var btn = document.getElementById('atv-rep-send');
+  inner.querySelector('.atv-rep-skip-btn').onclick = function(){ document.body.removeChild(overlay); };
+  inner.querySelector('.atv-rep-send-btn').onclick = function(){
+    var btn = inner.querySelector('.atv-rep-send-btn');
     btn.textContent='⏳ Enviando…'; btn.disabled=true;
     _sendAtvReportEmail(dados, storageKey, overlay, btn);
   };
