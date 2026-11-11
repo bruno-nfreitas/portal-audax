@@ -4815,6 +4815,42 @@ setInterval(_checkSextaFeira, 60000);
     </div>
 
   </div><!-- /tab-atividades -->
+
+  <!-- ═══ PAINÉIS COORDENADOR ═══ -->
+  <div class="panel" id="tab-coord-atividades">
+    <div class="proj-topbar" style="margin-bottom:18px">
+      <div>
+        <h2 style="font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:800;color:var(--g900);margin:0">Atividades da Equipe</h2>
+        <div style="font-size:11px;color:var(--g400);margin-top:2px">Visão consolidada de todos os engenheiros</div>
+      </div>
+      <button onclick="coordLoadAtividades()" style="display:inline-flex;align-items:center;gap:6px;padding:7px 14px;background:var(--blue);color:#fff;border:none;border-radius:8px;font-family:Barlow,sans-serif;font-size:12px;font-weight:700;cursor:pointer">
+        <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-.49-5.5"/></svg>
+        Atualizar
+      </button>
+    </div>
+    <div id="coord-atv-kpis" class="bd-kpi-row" style="margin-bottom:18px"></div>
+    <div id="coord-atv-body">
+      <div style="text-align:center;padding:40px;color:var(--g400);font-size:13px">Clique em <strong>Atualizar</strong> para carregar as atividades da equipe.</div>
+    </div>
+  </div>
+
+  <div class="panel" id="tab-coord-projetos">
+    <div class="proj-topbar" style="margin-bottom:18px">
+      <div>
+        <h2 style="font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:800;color:var(--g900);margin:0">Projetos da Equipe</h2>
+        <div style="font-size:11px;color:var(--g400);margin-top:2px">Visão consolidada de todos os engenheiros</div>
+      </div>
+      <button onclick="coordLoadProjetos()" style="display:inline-flex;align-items:center;gap:6px;padding:7px 14px;background:var(--blue);color:#fff;border:none;border-radius:8px;font-family:Barlow,sans-serif;font-size:12px;font-weight:700;cursor:pointer">
+        <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-.49-5.5"/></svg>
+        Atualizar
+      </button>
+    </div>
+    <div id="coord-proj-kpis" class="bd-kpi-row" style="margin-bottom:18px"></div>
+    <div id="coord-proj-body">
+      <div style="text-align:center;padding:40px;color:var(--g400);font-size:13px">Clique em <strong>Atualizar</strong> para carregar os projetos da equipe.</div>
+    </div>
+  </div>
+
     </div><!-- /wrapper-inner -->
   </div><!-- /page-inner -->
   </div><!-- /content-area -->
@@ -9988,41 +10024,6 @@ setInterval(_checkSextaFeira, 60000);
   </div>
 </div>
 
-
-<!-- ═══ PAINÉIS COORDENADOR ═══ -->
-<div class="panel" id="tab-coord-atividades">
-  <div class="proj-topbar" style="margin-bottom:18px">
-    <div>
-      <h2 style="font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:800;color:var(--g900);margin:0">Atividades da Equipe</h2>
-      <div style="font-size:11px;color:var(--g400);margin-top:2px">Visão consolidada de todos os engenheiros</div>
-    </div>
-    <button onclick="coordLoadAtividades()" style="display:inline-flex;align-items:center;gap:6px;padding:7px 14px;background:var(--blue);color:#fff;border:none;border-radius:8px;font-family:Barlow,sans-serif;font-size:12px;font-weight:700;cursor:pointer">
-      <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-.49-5.5"/></svg>
-      Atualizar
-    </button>
-  </div>
-  <div id="coord-atv-kpis" class="bd-kpi-row" style="margin-bottom:18px"></div>
-  <div id="coord-atv-body">
-    <div style="text-align:center;padding:40px;color:var(--g400);font-size:13px">Clique em <strong>Atualizar</strong> para carregar as atividades da equipe.</div>
-  </div>
-</div>
-
-<div class="panel" id="tab-coord-projetos">
-  <div class="proj-topbar" style="margin-bottom:18px">
-    <div>
-      <h2 style="font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:800;color:var(--g900);margin:0">Projetos da Equipe</h2>
-      <div style="font-size:11px;color:var(--g400);margin-top:2px">Visão consolidada de todos os engenheiros</div>
-    </div>
-    <button onclick="coordLoadProjetos()" style="display:inline-flex;align-items:center;gap:6px;padding:7px 14px;background:var(--blue);color:#fff;border:none;border-radius:8px;font-family:Barlow,sans-serif;font-size:12px;font-weight:700;cursor:pointer">
-      <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-.49-5.5"/></svg>
-      Atualizar
-    </button>
-  </div>
-  <div id="coord-proj-kpis" class="bd-kpi-row" style="margin-bottom:18px"></div>
-  <div id="coord-proj-body">
-    <div style="text-align:center;padding:40px;color:var(--g400);font-size:13px">Clique em <strong>Atualizar</strong> para carregar os projetos da equipe.</div>
-  </div>
-</div>
 
 <!-- ═══ MODAL ATIVIDADE ═══ -->
 <div id="atv-modal-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:3000;overflow-y:auto">
