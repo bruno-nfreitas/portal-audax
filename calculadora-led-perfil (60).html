@@ -1990,6 +1990,7 @@ setInterval(_checkSextaFeira, 60000);
           <label class="auth-label">Setor</label>
           <select class="auth-select" id="a-reg-setor">
             <option value="">Selecione o setor…</option>
+            <option value="Coordenador">Coordenador</option>
             <option value="Engenharia">Engenharia</option>
             <option value="Compras">Compras</option>
             <option value="Comercial">Comercial</option>
@@ -2084,6 +2085,27 @@ setInterval(_checkSextaFeira, 60000);
       </div>
 
       <!-- Projetos -->
+      <!-- Grupo exclusivo Coordenador -->
+      <div class="sb-group" id="sbgrp-coord" style="display:none">
+        <button class="sb-group-btn" onclick="sbToggle('coord',this)">
+          <span class="sb-group-icon">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          </span>
+          Coordenador
+          <svg class="sb-chevron" viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="sb-group-items open" id="sb-group-coord">
+          <button class="sb-item" id="sbi-coord-atividades" onclick="switchTab('coord-atividades',this)">
+            <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+            Atividades da Equipe
+          </button>
+          <button class="sb-item" id="sbi-coord-projetos" onclick="switchTab('coord-projetos',this)">
+            <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+            Projetos da Equipe
+          </button>
+        </div>
+      </div>
+
       <div class="sb-group" id="sbgrp-proj">
         <button class="sb-group-btn" onclick="sbToggle('proj',this)">
           <span class="sb-group-icon">
@@ -5085,7 +5107,9 @@ var _tabMeta = {
   projetos:  {section:'Projetos',        label:'Kanban'},
   amostras:    {section:'Projetos',      label:'Amostras'},
   atividades:  {section:'Projetos',      label:'Atividades'},
-  relatorios:  {section:'Projetos',      label:'Relatórios'},
+  relatorios:        {section:'Projetos',      label:'Relatórios'},
+  'coord-atividades':{section:'Coordenador',   label:'Atividades da Equipe'},
+  'coord-projetos':  {section:'Coordenador',   label:'Projetos da Equipe'},
 };
 
 function switchTab(id, btn){
@@ -7221,6 +7245,7 @@ function _renderAmostrasList(){
       +'</div>'
       +'<div class="ams-card-meta">'
       +'<span><svg viewBox="0 0 24 24" width="10" height="10" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>'+(a.cliente||'—')+'</span>'
+      +(a.pais?'<span><svg viewBox="0 0 24 24" width="10" height="10" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>'+a.pais+'</span>':'')
       +(a.pn?'<span><svg viewBox="0 0 24 24" width="10" height="10" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/></svg>'+a.pn+'</span>':'')
       +(a.qtd?'<span>'+a.qtd+' pç'+( Number(a.qtd)>1?'s':'')+'</span>':'')
       +'<span class="'+prazoCls+'"><svg viewBox="0 0 24 24" width="10" height="10" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>'+prazoFmt+'</span>'
@@ -7290,7 +7315,7 @@ function setFaseStatus(faseId, status){
 function openNewAmostra(){
   _editingAmsId=null; _amsFaseAtual='bom'; _amsFaseData={};
   FASES.forEach(function(f){ _amsFaseData[f.id]='pending'; });
-  ['ams-projeto','ams-cliente','ams-pn','ams-descricao','ams-engenheiro','ams-obs'].forEach(function(id){
+  ['ams-projeto','ams-cliente','ams-pn','ams-descricao','ams-engenheiro','ams-pais','ams-obs'].forEach(function(id){
     var el=document.getElementById(id); if(el) el.value='';
   });
   var q=document.getElementById('ams-qtd'); if(q) q.value='';
@@ -7318,6 +7343,7 @@ function openAmostra(id){
   document.getElementById('ams-solicitacao').value=a.solicitacao||'';
   document.getElementById('ams-prazo').value=a.prazo||'';
   document.getElementById('ams-engenheiro').value=a.engenheiro||'';
+  document.getElementById('ams-pais').value=a.pais||'';
   document.getElementById('ams-obs').value=a.obs||'';
   document.getElementById('ams-title-display').textContent=a.projeto||'Amostra';
   document.getElementById('ams-fase-badge').textContent=_faseLabel(a.faseAtual);
@@ -7381,6 +7407,7 @@ function saveAmostra(){
     solicitacao:document.getElementById('ams-solicitacao').value,
     prazo:document.getElementById('ams-prazo').value,
     engenheiro:document.getElementById('ams-engenheiro').value.trim(),
+    pais:document.getElementById('ams-pais').value.trim(),
     obs:document.getElementById('ams-obs').value.trim(),
     faseAtual:_amsFaseAtual,
     faseData:Object.assign({},_amsFaseData),
@@ -7811,8 +7838,9 @@ function atvRender(){
   list.forEach(function(a,i){
     var proj=a.projId?(_projects.find(function(p){return p.id===a.projId;})||null):null;
     var rowCls=(i%2===0?'bom-tr-odd':'bom-tr-even')+(a.status==='done'?' atv-row-done':a.status==='doing'?' atv-row-doing':'');
-    var tempo=(Number(a.tempoH||0)||Number(a.tempoM||0))
-      ?(Number(a.tempoH||0)+'h '+(Number(a.tempoM||0)||'0')+'min'):'—';
+    var _tH=Number(a.tempoH)||0, _tM=Number(a.tempoM)||0;
+    var tempo=(a.tempoH!==undefined||a.tempoM!==undefined)
+      ?(_tH+'h '+(_tM<10?'0':'')+_tM+'min'):'—';
 
     var prazoCls='';
     if(a.prazo&&a.status!=='done'){
@@ -8140,33 +8168,182 @@ function doRegister(){
     .catch(function(e){ if(btn) btn.disabled=false; err.textContent='Erro de conexão. Tente novamente.'; });
 }
 
+// ══════════════════════════════════════════════════════════
+// COORDENADOR — visão consolidada de toda a equipe
+// ══════════════════════════════════════════════════════════
+function coordLoadAtividades(){
+  var body=document.getElementById('coord-atv-body');
+  var kpis=document.getElementById('coord-atv-kpis');
+  if(body) body.innerHTML='<div style="text-align:center;padding:32px;color:var(--g400)">Carregando…</div>';
+
+  // Buscar todos os registros de atividades
+  _supaFetch('activities?select=user_email,data')
+    .then(function(r){ return r.json(); })
+    .then(function(rows){
+      if(!rows||!rows.length){ body.innerHTML='<div style="text-align:center;padding:32px;color:var(--g400)">Nenhuma atividade encontrada.</div>'; return; }
+
+      var STATUS_LBL={pending:'Pendente',doing:'Em andamento',done:'Concluída'};
+      var allAtv=[];
+      rows.forEach(function(row){
+        var arr=[]; try{ arr=JSON.parse(row.data)||[]; }catch(e){}
+        arr.forEach(function(a){ a._owner=row.user_email; allAtv.push(a); });
+      });
+
+      // KPIs
+      var total=allAtv.length;
+      var pendentes=allAtv.filter(function(a){return a.status==='pending';}).length;
+      var fazendo=allAtv.filter(function(a){return a.status==='doing';}).length;
+      var concluidas=allAtv.filter(function(a){return a.status==='done';}).length;
+      if(kpis) kpis.innerHTML=
+        _bdKpi('Total',''+total,'atividades','')+
+        _bdKpi('Pendentes',''+pendentes,'aguardando','orange')+
+        _bdKpi('Em andamento',''+fazendo,'em progresso','blue')+
+        _bdKpi('Concluídas',''+concluidas,'finalizadas','green');
+
+      // Agrupar por engenheiro
+      var byUser={};
+      allAtv.forEach(function(a){ (byUser[a._owner]=byUser[a._owner]||[]).push(a); });
+
+      var html='';
+      Object.keys(byUser).sort().forEach(function(email){
+        var lista=byUser[email];
+        var nome=email.split('@')[0].replace(/\./g,' ').replace(/\b\w/g,function(c){return c.toUpperCase();});
+        html+='<div style="margin-bottom:24px">'
+          +'<div style="font-family:\'Barlow Condensed\',sans-serif;font-size:14px;font-weight:800;color:var(--g700);text-transform:uppercase;letter-spacing:.05em;padding:8px 0 6px;border-bottom:2px solid var(--g200);margin-bottom:10px">'
+          +'<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:5px"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>'
+          +nome+' <span style="font-size:11px;color:var(--g400);font-weight:400">('+email+')</span>'
+          +' <span style="background:var(--g200);color:var(--g600);padding:1px 8px;border-radius:10px;font-size:11px;margin-left:6px">'+lista.length+'</span>'
+          +'</div>'
+          +'<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:12px">'
+          +'<tr style="background:var(--g50)"><th style="text-align:left;padding:5px 10px;color:var(--g600);font-weight:600">Atividade</th>'
+          +'<th style="text-align:left;padding:5px 10px;color:var(--g600);font-weight:600">Cliente</th>'
+          +'<th style="text-align:left;padding:5px 10px;color:var(--g600);font-weight:600">Status</th>'
+          +'<th style="text-align:left;padding:5px 10px;color:var(--g600);font-weight:600">Tempo</th>'
+          +'<th style="text-align:left;padding:5px 10px;color:var(--g600);font-weight:600">Prazo</th></tr>';
+
+        lista.forEach(function(a){
+          var stCls={pending:'atv-status-pending',doing:'atv-status-doing',done:'atv-status-done'}[a.status]||'';
+          var tH=Number(a.tempoH)||0, tM=Number(a.tempoM)||0;
+          var tempo=(a.tempoH!==undefined||a.tempoM!==undefined)?(tH+'h '+(tM<10?'0':'')+tM+'min'):'—';
+          var prazo=a.prazo?new Date(a.prazo+'T00:00:00').toLocaleDateString('pt-BR'):'—';
+          html+='<tr style="border-bottom:1px solid var(--g100)">'
+            +'<td style="padding:6px 10px;color:var(--g900);font-weight:500">'+_escHtml(a.desc||'—')+'</td>'
+            +'<td style="padding:6px 10px;color:var(--g600)">'+_escHtml(a.cliente||'—')+'</td>'
+            +'<td style="padding:6px 10px"><span class="atv-status-badge '+stCls+'">'+(STATUS_LBL[a.status]||a.status)+'</span></td>'
+            +'<td style="padding:6px 10px;color:var(--g700);font-weight:600">'+tempo+'</td>'
+            +'<td style="padding:6px 10px;color:var(--g600)">'+prazo+'</td>'
+            +'</tr>';
+        });
+        html+='</table></div></div>';
+      });
+      body.innerHTML=html;
+    })
+    .catch(function(e){ if(body) body.innerHTML='<div style="text-align:center;padding:32px;color:var(--orange)">Erro ao carregar dados.</div>'; });
+}
+
+function coordLoadProjetos(){
+  var body=document.getElementById('coord-proj-body');
+  var kpis=document.getElementById('coord-proj-kpis');
+  if(body) body.innerHTML='<div style="text-align:center;padding:32px;color:var(--g400)">Carregando…</div>';
+
+  _supaFetch('projects?select=user_email,data')
+    .then(function(r){ return r.json(); })
+    .then(function(rows){
+      if(!rows||!rows.length){ body.innerHTML='<div style="text-align:center;padding:32px;color:var(--g400)">Nenhum projeto encontrado.</div>'; return; }
+
+      var allProj=[];
+      rows.forEach(function(row){
+        var arr=[]; try{ arr=JSON.parse(row.data)||[]; }catch(e){}
+        arr.forEach(function(p){ p._owner=row.user_email; allProj.push(p); });
+      });
+
+      var STATUS_PROJ={todo:'A fazer',doing:'Em andamento',done:'Concluído',hold:'Em espera'};
+      var total=allProj.length;
+      var emAnd=allProj.filter(function(p){return p.status==='doing';}).length;
+      var conc=allProj.filter(function(p){return p.status==='done';}).length;
+      var espera=allProj.filter(function(p){return p.status==='hold';}).length;
+      if(kpis) kpis.innerHTML=
+        _bdKpi('Total',''+total,'projetos','')+
+        _bdKpi('Em andamento',''+emAnd,'ativos','blue')+
+        _bdKpi('Concluídos',''+conc,'finalizados','green')+
+        _bdKpi('Em espera',''+espera,'aguardando','orange');
+
+      var byUser={};
+      allProj.forEach(function(p){ (byUser[p._owner]=byUser[p._owner]||[]).push(p); });
+
+      var html='';
+      Object.keys(byUser).sort().forEach(function(email){
+        var lista=byUser[email];
+        var nome=email.split('@')[0].replace(/\./g,' ').replace(/\b\w/g,function(c){return c.toUpperCase();});
+        html+='<div style="margin-bottom:24px">'
+          +'<div style="font-family:\'Barlow Condensed\',sans-serif;font-size:14px;font-weight:800;color:var(--g700);text-transform:uppercase;letter-spacing:.05em;padding:8px 0 6px;border-bottom:2px solid var(--g200);margin-bottom:10px">'
+          +'<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:5px"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>'
+          +nome+' <span style="font-size:11px;color:var(--g400);font-weight:400">('+email+')</span>'
+          +' <span style="background:var(--g200);color:var(--g600);padding:1px 8px;border-radius:10px;font-size:11px;margin-left:6px">'+lista.length+'</span>'
+          +'</div>'
+          +'<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:12px">'
+          +'<tr style="background:var(--g50)"><th style="text-align:left;padding:5px 10px;color:var(--g600);font-weight:600">Projeto</th>'
+          +'<th style="text-align:left;padding:5px 10px;color:var(--g600);font-weight:600">Cliente</th>'
+          +'<th style="text-align:left;padding:5px 10px;color:var(--g600);font-weight:600">Status</th>'
+          +'<th style="text-align:left;padding:5px 10px;color:var(--g600);font-weight:600">País</th>'
+          +'<th style="text-align:left;padding:5px 10px;color:var(--g600);font-weight:600">Prazo</th></tr>';
+
+        lista.forEach(function(p){
+          var stLabel=STATUS_PROJ[p.status]||p.status||'—';
+          var prazo=p.prazo?new Date(p.prazo+'T00:00:00').toLocaleDateString('pt-BR'):'—';
+          html+='<tr style="border-bottom:1px solid var(--g100)">'
+            +'<td style="padding:6px 10px;color:var(--g900);font-weight:500">'+_escHtml(p.nome||'—')+'</td>'
+            +'<td style="padding:6px 10px;color:var(--g600)">'+_escHtml(p.cliente||'—')+'</td>'
+            +'<td style="padding:6px 10px"><span style="font-size:11px;font-weight:700;padding:2px 8px;border-radius:10px;background:var(--g100);color:var(--g700)">'+_escHtml(stLabel)+'</span></td>'
+            +'<td style="padding:6px 10px;color:var(--g600)">'+_escHtml(p.pais||'—')+'</td>'
+            +'<td style="padding:6px 10px;color:var(--g600)">'+prazo+'</td>'
+            +'</tr>';
+        });
+        html+='</table></div></div>';
+      });
+      body.innerHTML=html;
+    })
+    .catch(function(e){ if(body) body.innerHTML='<div style="text-align:center;padding:32px;color:var(--orange)">Erro ao carregar dados.</div>'; });
+}
+
 // ── Tab visibility by setor ───────────────────────────────
 // Shared tabs (all engineering): Dev group + Amostras
 // Individual tabs (per user, private data): Kanban, Atividades, Relatórios
 // Non-engineering users: only see what is explicitly assigned in future
 function _applyTabVisibility(user){
-  var isEng = user && user.setor === 'Engenharia';
+  var isEng   = user && user.setor === 'Engenharia';
+  var isCoord = user && user.setor === 'Coordenador';
 
   // Tabs shared among all engineering accounts (Desenvolvimento group + Amostras)
   var sharedTabs = ['sbi-mecanica','sbi-eletronica','sbi-bom','sbi-bigdata','sbi-estrutura','sbi-amostras'];
   // Individual tabs — visible only to the account owner (always shown if engineering)
   var individualTabs = ['sbi-projetos','sbi-atividades','sbi-relatorios'];
 
-  // Show all tabs for engineering; hide all for non-engineering (future expansion)
+  // Engenharia: vê tudo normal
   sharedTabs.concat(individualTabs).forEach(function(id){
     var el = document.getElementById(id);
     if(el) el.style.display = isEng ? '' : 'none';
   });
 
-  // Also show/hide sidebar groups entirely
-  var devGrp = document.getElementById('sbgrp-dev');
-  if(devGrp) devGrp.style.display = isEng ? '' : 'none';
+  // Show/hide sidebar groups
+  var devGrp  = document.getElementById('sbgrp-dev');
+  if(devGrp)  devGrp.style.display  = isEng ? '' : 'none';
   var projGrp = document.getElementById('sbgrp-proj');
   if(projGrp) projGrp.style.display = isEng ? '' : 'none';
 
-  // If not engineering, show a message or redirect to a neutral landing
-  if(!isEng){
-    // Show a friendly placeholder in the content area
+  // Coordenador: vê grupo próprio + amostras
+  var coordGrp = document.getElementById('sbgrp-coord');
+  if(coordGrp) coordGrp.style.display = isCoord ? '' : 'none';
+  var sbiAms = document.getElementById('sbi-amostras');
+  if(sbiAms) sbiAms.style.display = (isEng || isCoord) ? '' : 'none';
+
+  // Coordenador: abrir primeira aba automaticamente
+  if(isCoord){
+    setTimeout(function(){ switchTab('coord-atividades', document.getElementById('sbi-coord-atividades')); }, 700);
+  }
+
+  // Outros setores: mensagem de acesso restrito
+  if(!isEng && !isCoord){
     setTimeout(function(){
       var ca = document.getElementById('content-area');
       if(ca) ca.innerHTML = '<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:60vh;gap:16px;font-family:\'Barlow\',sans-serif;">'
@@ -9692,6 +9869,10 @@ setInterval(_checkSextaFeira, 60000);
           <label>Engenheiro Responsável</label>
           <input type="text" id="ams-engenheiro" placeholder="Nome">
         </div>
+        <div class="pm-field">
+          <label>País de Destino</label>
+          <input type="text" id="ams-pais" placeholder="Ex: Brasil, EUA, México…">
+        </div>
 
         <!-- Pipeline de fases -->
         <div class="pm-field" style="grid-column:1/-1">
@@ -9807,6 +9988,41 @@ setInterval(_checkSextaFeira, 60000);
   </div>
 </div>
 
+
+<!-- ═══ PAINÉIS COORDENADOR ═══ -->
+<div class="panel" id="tab-coord-atividades">
+  <div class="proj-topbar" style="margin-bottom:18px">
+    <div>
+      <h2 style="font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:800;color:var(--g900);margin:0">Atividades da Equipe</h2>
+      <div style="font-size:11px;color:var(--g400);margin-top:2px">Visão consolidada de todos os engenheiros</div>
+    </div>
+    <button onclick="coordLoadAtividades()" style="display:inline-flex;align-items:center;gap:6px;padding:7px 14px;background:var(--blue);color:#fff;border:none;border-radius:8px;font-family:Barlow,sans-serif;font-size:12px;font-weight:700;cursor:pointer">
+      <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-.49-5.5"/></svg>
+      Atualizar
+    </button>
+  </div>
+  <div id="coord-atv-kpis" class="bd-kpi-row" style="margin-bottom:18px"></div>
+  <div id="coord-atv-body">
+    <div style="text-align:center;padding:40px;color:var(--g400);font-size:13px">Clique em <strong>Atualizar</strong> para carregar as atividades da equipe.</div>
+  </div>
+</div>
+
+<div class="panel" id="tab-coord-projetos">
+  <div class="proj-topbar" style="margin-bottom:18px">
+    <div>
+      <h2 style="font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:800;color:var(--g900);margin:0">Projetos da Equipe</h2>
+      <div style="font-size:11px;color:var(--g400);margin-top:2px">Visão consolidada de todos os engenheiros</div>
+    </div>
+    <button onclick="coordLoadProjetos()" style="display:inline-flex;align-items:center;gap:6px;padding:7px 14px;background:var(--blue);color:#fff;border:none;border-radius:8px;font-family:Barlow,sans-serif;font-size:12px;font-weight:700;cursor:pointer">
+      <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-.49-5.5"/></svg>
+      Atualizar
+    </button>
+  </div>
+  <div id="coord-proj-kpis" class="bd-kpi-row" style="margin-bottom:18px"></div>
+  <div id="coord-proj-body">
+    <div style="text-align:center;padding:40px;color:var(--g400);font-size:13px">Clique em <strong>Atualizar</strong> para carregar os projetos da equipe.</div>
+  </div>
+</div>
 
 <!-- ═══ MODAL ATIVIDADE ═══ -->
 <div id="atv-modal-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:3000;overflow-y:auto">
