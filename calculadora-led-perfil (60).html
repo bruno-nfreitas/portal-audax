@@ -4406,6 +4406,10 @@ setInterval(_checkSextaFeira, 60000);
           <input id="kanban-search" type="text" placeholder="Pesquisar projeto..." oninput="renderKanban()" style="height:32px;padding:0 10px 0 28px;border:1.5px solid var(--g300);border-radius:7px;font-family:'Barlow',sans-serif;font-size:12px;color:var(--g700);background:var(--white);width:170px;outline:none" onfocus="this.style.borderColor='var(--blue)'" onblur="this.style.borderColor='var(--g300)'">
         </div>
       </div>
+      <button onclick="exportProjetosXLS()" style="display:inline-flex;align-items:center;gap:6px;padding:7px 14px;background:#f0fdf4;border:1.5px solid #86efac;border-radius:8px;font-family:Barlow,sans-serif;font-size:12px;font-weight:700;color:#166534;cursor:pointer">
+        <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="11" x2="12" y2="17"/><line x1="9" y1="14" x2="15" y2="14"/></svg>
+        Exportar Excel
+      </button>
       <button class="proj-new-btn" onclick="openNewProject()">
         <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
         Novo Projeto
@@ -4518,10 +4522,16 @@ setInterval(_checkSextaFeira, 60000);
             </div>
           </div>
         </div>
-        <button class="proj-new-btn" onclick="openNewAmostra()" style="align-self:flex-end;margin-top:-44px">
-          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-          Nova Amostra
-        </button>
+        <div style="display:flex;gap:8px;align-self:flex-end;margin-top:-44px">
+          <button onclick="exportAmostrasXLS()" style="display:inline-flex;align-items:center;gap:6px;padding:9px 14px;background:#f0fdf4;border:1.5px solid #86efac;border-radius:8px;font-family:Barlow,sans-serif;font-size:12px;font-weight:700;color:#166534;cursor:pointer">
+            <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="11" x2="12" y2="17"/><line x1="9" y1="14" x2="15" y2="14"/></svg>
+            Exportar Excel
+          </button>
+          <button class="proj-new-btn" onclick="openNewAmostra()">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Nova Amostra
+          </button>
+        </div>
       </div>
 
       <!-- KPIs -->
@@ -4784,6 +4794,10 @@ setInterval(_checkSextaFeira, 60000);
       <button onclick="atvVerHistorico()" style="display:inline-flex;align-items:center;gap:6px;padding:7px 14px;background:#f1f5f9;border:1.5px solid #cbd5e1;border-radius:8px;font-family:Barlow,sans-serif;font-size:12px;font-weight:700;color:#475569;cursor:pointer">
         <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
         Histórico Semanal
+      </button>
+      <button onclick="exportAtividadesXLS()" style="display:inline-flex;align-items:center;gap:6px;padding:7px 14px;background:#f0fdf4;border:1.5px solid #86efac;border-radius:8px;font-family:Barlow,sans-serif;font-size:12px;font-weight:700;color:#166534;cursor:pointer">
+        <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="11" x2="12" y2="17"/><line x1="9" y1="14" x2="15" y2="14"/></svg>
+        Exportar Excel
       </button>
     </div>
 
@@ -7721,26 +7735,63 @@ function atvOpenEdit(id){
 // Controla visibilidade do timer-box no modal
 // Se id === _atvTimerId (timer ativo desta atividade) → mostra e restaura display
 // Se timer está parado (sem nenhuma atividade) → mostra resetado (para permitir iniciar)
-// Se timer está rodando em OUTRA atividade → oculta o box inteiramente
+// Se timer está PAUSADO em OUTRA atividade → mostra box fresco (pausa antiga abandonada)
+// Se timer está RODANDO em OUTRA atividade → mostra aviso com botão Pausar
 function _atvShowTimerForId(id){
   var box=document.getElementById('atv-timer-box-wrap');
   if(!box) return;
+  // Remover aviso de outra atividade se existir
+  var oldNotice=document.getElementById('atv-timer-other-notice');
+  if(oldNotice) oldNotice.parentNode.removeChild(oldNotice);
   // Sem timer ativo e sem segundos: mostrar box em estado reset
   if(!_atvTimerRunning && _atvTimerSec===0){
     box.style.display='';
     _atvTimerResetOnOpen();
     return;
   }
-  // Timer ativo NESTA atividade (ou timer sem dono = atividade nova não salva ainda): mostrar e restaurar display
+  // Timer ativo NESTA atividade (ou timer sem dono): mostrar e restaurar display
   if(_atvTimerId===id || _atvTimerId===null){
-    // Se o timer não tem dono ainda, vincular agora à atividade aberta
     if(_atvTimerId===null && id) _atvTimerId=id;
     box.style.display='';
     _atvTimerRestoreDisplay();
     return;
   }
-  // Timer ativo em OUTRA atividade: ocultar o box
-  box.style.display='none';
+  // Timer PAUSADO em outra atividade: abandonar pausa e mostrar timer fresco para esta
+  if(!_atvTimerRunning && _atvTimerSec>0){
+    // Pausa em outra atividade — descartar e mostrar timer fresco
+    _atvTimerId=id;
+    _atvTimerSec=0;
+    box.style.display='';
+    _atvTimerResetOnOpen();
+    return;
+  }
+  // Timer RODANDO em outra atividade: mostrar aviso com botão Pausar
+  box.style.display='';
+  // Encontrar nome da atividade em andamento
+  var outroNome='outra atividade';
+  if(_atvTimerId){
+    var outroAtv=_activities.find(function(x){return x.id===_atvTimerId;});
+    if(outroAtv&&outroAtv.desc) outroNome='"'+outroAtv.desc+'"';
+  }
+  var notice=document.createElement('div');
+  notice.id='atv-timer-other-notice';
+  notice.style.cssText='background:#fff3cd;border:1.5px solid #ffc107;border-radius:8px;padding:10px 14px;margin-bottom:8px;font-size:12px;color:#856404;display:flex;align-items:center;gap:10px;flex-wrap:wrap;';
+  notice.innerHTML='<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>'
+    +'<span style="flex:1">Cronômetro rodando em '+_escHtml(outroNome)+'</span>'
+    +'<button onclick="atvTimerPause();_atvShowTimerForId(\''+id+'\')" style="background:#ffc107;color:#333;border:none;border-radius:6px;padding:5px 10px;cursor:pointer;font-size:11px;font-weight:600">Pausar &amp; iniciar aqui</button>';
+  // Inserir o aviso antes do atv-timer-box
+  var innerBox=box.querySelector('.atv-timer-box');
+  if(innerBox) box.insertBefore(notice, innerBox);
+  else box.insertBefore(notice, box.firstChild);
+  // Desabilitar todos os botões do timer enquanto outro está rodando
+  var s=document.getElementById('atv-timer-start');
+  var p=document.getElementById('atv-timer-pause');
+  var f=document.getElementById('atv-timer-finish');
+  var r=document.getElementById('atv-timer-reset');
+  if(s) s.disabled=true; if(p) p.disabled=true; if(f) f.disabled=true; if(r) r.disabled=true;
+  // Mostrar display com tempo atual (informativo)
+  var disp=document.getElementById('atv-timer-display');
+  if(disp){ disp.textContent=_atvTimerFmt(_atvTimerSec); disp.className='atv-timer-display running'; disp.style.opacity='0.5'; }
 }
 
 function _atvPopulateProj(selId){
@@ -9064,7 +9115,7 @@ function atvTimerPause(){
 function atvTimerFinish(){
   clearInterval(_atvTimerInt); _atvTimerRunning=false;
   var disp=document.getElementById('atv-timer-display');
-  if(disp){ disp.classList.remove('running','paused'); disp.classList.add('done'); }
+  if(disp){ disp.classList.remove('running','paused'); disp.classList.add('done'); disp.style.opacity=''; }
   // Preencher os campos manuais com o tempo registrado
   var h=Math.floor(_atvTimerSec/3600);
   var m=Math.floor((_atvTimerSec%3600)/60);
@@ -9076,6 +9127,8 @@ function atvTimerFinish(){
   if(s){ s.disabled=true; } if(p) p.disabled=true; if(f) f.disabled=true;
   // Mudar status para Concluída automaticamente
   var stEl=document.getElementById('atv-status'); if(stEl) stEl.value='done';
+  // Liberar o timer completamente — próxima atividade começa do zero
+  _atvTimerId=null; _atvTimerSec=0;
 }
 
 function atvTimerReset(){
@@ -9096,13 +9149,16 @@ function _atvTimerRestoreDisplay(){
   if(disp){
     disp.textContent=_atvTimerFmt(_atvTimerSec);
     disp.className='atv-timer-display'+(_atvTimerRunning?' running':_atvTimerSec>0?' paused':'');
+    disp.style.opacity='';
   }
   var s=document.getElementById('atv-timer-start');
   var p=document.getElementById('atv-timer-pause');
   var f=document.getElementById('atv-timer-finish');
+  var r=document.getElementById('atv-timer-reset');
   if(s) s.disabled=_atvTimerRunning;
   if(p) p.disabled=!_atvTimerRunning;
   if(f) f.disabled=_atvTimerSec===0;
+  if(r) r.disabled=false;
   if(s&&_atvTimerSec>0&&!_atvTimerRunning) s.innerHTML='<svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg> Retomar';
 }
 
@@ -9118,6 +9174,180 @@ function _atvTimerResetOnOpen(){
 }
 
 // Timer NÃO para ao fechar o modal — persiste em background
+
+// ══════════════════════════════════════════════════════════
+// EXPORT EXCEL — Projetos, Atividades, Amostras (visual Audax)
+// ══════════════════════════════════════════════════════════
+
+// Cores Audax
+var _AUDAX_BLUE   = '0070C0'; // header azul
+var _AUDAX_ORANGE = 'FF6600'; // accent laranja
+var _AUDAX_WHITE  = 'FFFFFF';
+var _AUDAX_DARK   = '1A1A2E';
+var _AUDAX_LIGHT  = 'F0F7FF'; // faixa alternada azul claro
+
+// Utilitário: aplica estilo a célula
+function _xlCell(v, bold, bgHex, fgHex, center, border){
+  var s={font:{name:'Calibri',sz:11,color:{rgb:fgHex||'000000'}}};
+  if(bold) s.font.bold=true;
+  if(bgHex) s.fill={patternType:'solid',fgColor:{rgb:bgHex}};
+  if(center) s.alignment={horizontal:'center',vertical:'center',wrapText:true};
+  if(border) s.border={
+    top:{style:'thin',color:{rgb:'B0C4DE'}},
+    bottom:{style:'thin',color:{rgb:'B0C4DE'}},
+    left:{style:'thin',color:{rgb:'B0C4DE'}},
+    right:{style:'thin',color:{rgb:'B0C4DE'}}
+  };
+  return {v:v===null||v===undefined?'':v, t:'s', s:s};
+}
+
+// Aplica larguras de coluna
+function _xlColW(ws, widths){
+  ws['!cols']=widths.map(function(w){return{wch:w};});
+}
+
+// Título da planilha (linha de cabeçalho da empresa)
+function _xlInsertTitle(wsData, label, ncols){
+  var row=[];
+  for(var i=0;i<ncols;i++){
+    if(i===0) row.push(_xlCell('AUDAX LED — '+label, true, _AUDAX_BLUE, _AUDAX_WHITE, true, false));
+    else row.push(_xlCell('', false, _AUDAX_BLUE, _AUDAX_WHITE, false, false));
+  }
+  wsData.push(row);
+  // Linha de data de geração
+  var row2=[];
+  var dateStr='Gerado em '+new Date().toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
+  for(var j=0;j<ncols;j++){
+    if(j===0) row2.push(_xlCell(dateStr, false, 'E8F4FD', '0070C0', false, false));
+    else row2.push(_xlCell('', false, 'E8F4FD', '0070C0', false, false));
+  }
+  wsData.push(row2);
+  wsData.push([]); // linha vazia
+}
+
+function exportProjetosXLS(){
+  if(!_projects||!_projects.length){showPopup('Sem dados','Nenhum projeto cadastrado.','warn');return;}
+  _loadSheetJSStyle(function(){
+    var X=window.XLSXStyle||window.XLSX;
+    var hdrs=['ID','Nome do Projeto','Cliente','Contato','Engenheiro','Status','Prioridade','Início','Prazo','País','Descrição','Produtos','Atualizado'];
+    var ncols=hdrs.length;
+    var wsData=[];
+    _xlInsertTitle(wsData,'Projetos',ncols);
+    // Cabeçalho
+    wsData.push(hdrs.map(function(h){return _xlCell(h,true,_AUDAX_BLUE,_AUDAX_WHITE,true,true);}));
+    // Dados
+    var statusMap={todo:'A Fazer',doing:'Em Andamento',done:'Concluído'};
+    var prioMap={low:'Baixa',medium:'Média',high:'Alta'};
+    _projects.forEach(function(p,i){
+      var bg=i%2===0?_AUDAX_LIGHT:_AUDAX_WHITE;
+      wsData.push([
+        _xlCell(p.id,false,bg,'000000',false,true),
+        _xlCell(p.nome,true,bg,_AUDAX_DARK,false,true),
+        _xlCell(p.cliente,false,bg,'000000',false,true),
+        _xlCell(p.contato,false,bg,'000000',false,true),
+        _xlCell(p.engenheiro,false,bg,'000000',false,true),
+        _xlCell(statusMap[p.status]||p.status,false,bg,'000000',true,true),
+        _xlCell(prioMap[p.prioridade]||p.prioridade,false,bg,'000000',true,true),
+        _xlCell(p.inicio,false,bg,'000000',true,true),
+        _xlCell(p.prazo,false,bg,'000000',true,true),
+        _xlCell(p.pais,false,bg,'000000',false,true),
+        _xlCell(p.descricao,false,bg,'000000',false,true),
+        _xlCell(p.produtos,false,bg,'000000',false,true),
+        _xlCell(p.atualizado,false,bg,'000000',true,true)
+      ]);
+    });
+    var ws=X.utils.aoa_to_sheet(wsData);
+    // Mesclar título (linha 0 e linha 1)
+    ws['!merges']=[
+      {s:{r:0,c:0},e:{r:0,c:ncols-1}},
+      {s:{r:1,c:0},e:{r:1,c:ncols-1}}
+    ];
+    _xlColW(ws,[12,30,22,20,18,14,12,12,12,15,35,30,14]);
+    var wb=X.utils.book_new();
+    X.utils.book_append_sheet(wb,ws,'Projetos');
+    X.writeFile(wb,'AUDAX_Projetos_'+new Date().toISOString().slice(0,10)+'.xlsx',{cellStyles:true,type:'binary'});
+  });
+}
+
+function exportAtividadesXLS(){
+  if(!_activities||!_activities.length){showPopup('Sem dados','Nenhuma atividade cadastrada.','warn');return;}
+  _loadSheetJSStyle(function(){
+    var X=window.XLSXStyle||window.XLSX;
+    var hdrs=['Atividade','Cliente','Projeto','Status','Prioridade','Tempo (h)','Tempo (min)','Prazo','Observações','Data'];
+    var ncols=hdrs.length;
+    var wsData=[];
+    _xlInsertTitle(wsData,'Atividades',ncols);
+    wsData.push(hdrs.map(function(h){return _xlCell(h,true,_AUDAX_BLUE,_AUDAX_WHITE,true,true);}));
+    var statusMap={pending:'Pendente',doing:'Em Andamento',done:'Concluída'};
+    var prioMap={low:'Baixa',normal:'Normal',high:'Alta'};
+    _activities.forEach(function(a,i){
+      var bg=i%2===0?_AUDAX_LIGHT:_AUDAX_WHITE;
+      var projNome='';
+      if(a.projId){var p=_projects.find(function(x){return x.id===a.projId;});if(p) projNome=p.nome;}
+      wsData.push([
+        _xlCell(a.desc,true,bg,_AUDAX_DARK,false,true),
+        _xlCell(a.cliente,false,bg,'000000',false,true),
+        _xlCell(projNome,false,bg,'000000',false,true),
+        _xlCell(statusMap[a.status]||a.status,false,bg,'000000',true,true),
+        _xlCell(prioMap[a.prio]||a.prio,false,bg,'000000',true,true),
+        _xlCell(a.tempoH||'0',false,bg,'000000',true,true),
+        _xlCell(a.tempoM||'0',false,bg,'000000',true,true),
+        _xlCell(a.prazo,false,bg,'000000',true,true),
+        _xlCell(a.obs,false,bg,'000000',false,true),
+        _xlCell(a.data,false,bg,'000000',true,true)
+      ]);
+    });
+    var ws=X.utils.aoa_to_sheet(wsData);
+    ws['!merges']=[
+      {s:{r:0,c:0},e:{r:0,c:ncols-1}},
+      {s:{r:1,c:0},e:{r:1,c:ncols-1}}
+    ];
+    _xlColW(ws,[35,22,25,14,12,10,10,12,35,14]);
+    var wb=X.utils.book_new();
+    X.utils.book_append_sheet(wb,ws,'Atividades');
+    X.writeFile(wb,'AUDAX_Atividades_'+new Date().toISOString().slice(0,10)+'.xlsx',{cellStyles:true,type:'binary'});
+  });
+}
+
+function exportAmostrasXLS(){
+  if(!_amostras||!_amostras.length){showPopup('Sem dados','Nenhuma amostra cadastrada.','warn');return;}
+  _loadSheetJSStyle(function(){
+    var X=window.XLSXStyle||window.XLSX;
+    var hdrs=['PN Audax','Descrição','Cliente','Engenheiro','País Destino','Projeto','Fase Atual','Quantidade','Solicitação','Prazo','Dias de Ciclo','Observações','Atualizado'];
+    var ncols=hdrs.length;
+    var wsData=[];
+    _xlInsertTitle(wsData,'Controle de Amostras',ncols);
+    wsData.push(hdrs.map(function(h){return _xlCell(h,true,_AUDAX_ORANGE,_AUDAX_WHITE,true,true);}));
+    var faseMap={bom:'BOM',compras:'Compras',producao:'Produção',qualidade:'Qualidade',expedicao:'Expedição',concluido:'Concluído'};
+    _amostras.forEach(function(a,i){
+      var bg=i%2===0?'FFF8F4':_AUDAX_WHITE; // laranja claro alternado para amostras
+      wsData.push([
+        _xlCell(a.pn,true,bg,_AUDAX_DARK,false,true),
+        _xlCell(a.descricao,false,bg,'000000',false,true),
+        _xlCell(a.cliente,false,bg,'000000',false,true),
+        _xlCell(a.engenheiro,false,bg,'000000',false,true),
+        _xlCell(a.pais,false,bg,'000000',false,true),
+        _xlCell(a.projeto,false,bg,'000000',false,true),
+        _xlCell(faseMap[a.faseAtual]||a.faseAtual,false,bg,'000000',true,true),
+        _xlCell(a.qtd,false,bg,'000000',true,true),
+        _xlCell(a.solicitacao,false,bg,'000000',true,true),
+        _xlCell(a.prazo,false,bg,'000000',true,true),
+        _xlCell(a.cicloDias!==undefined?a.cicloDias:'',false,bg,'000000',true,true),
+        _xlCell(a.obs,false,bg,'000000',false,true),
+        _xlCell(a.atualizado,false,bg,'000000',true,true)
+      ]);
+    });
+    var ws=X.utils.aoa_to_sheet(wsData);
+    ws['!merges']=[
+      {s:{r:0,c:0},e:{r:0,c:ncols-1}},
+      {s:{r:1,c:0},e:{r:1,c:ncols-1}}
+    ];
+    _xlColW(ws,[18,30,22,18,15,25,14,10,12,12,12,35,14]);
+    var wb=X.utils.book_new();
+    X.utils.book_append_sheet(wb,ws,'Amostras');
+    X.writeFile(wb,'AUDAX_Amostras_'+new Date().toISOString().slice(0,10)+'.xlsx',{cellStyles:true,type:'binary'});
+  });
+}
 
 // ── Criar projeto direto do modal de atividade ──────────
 function atvCreateProject(){
