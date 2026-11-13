@@ -4493,8 +4493,22 @@ setInterval(_checkSextaFeira, 60000);
     <div id="amsp-lista">
     <div id="pjsp-amostras">
       <div class="ams-topbar" style="flex-direction:column;align-items:flex-start;gap:12px">
-        <div class="ams-filters" id="ams-filters" style="flex-direction:column;gap:10px;width:100%">
+        <!-- Linha de busca + botões de ação -->
+        <div style="display:flex;align-items:center;justify-content:space-between;width:100%;gap:10px;flex-wrap:wrap">
           <input type="text" id="ams-search" class="bom-search-input" style="max-width:260px;height:34px;font-size:12px" placeholder="Buscar cliente, PN, projeto…" oninput="renderAmostras()">
+          <div style="display:flex;gap:8px;flex-shrink:0">
+            <button onclick="exportAmostrasXLS()" style="display:inline-flex;align-items:center;gap:6px;padding:7px 14px;background:#f0fdf4;border:1.5px solid #86efac;border-radius:8px;font-family:Barlow,sans-serif;font-size:12px;font-weight:700;color:#166534;cursor:pointer">
+              <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="11" x2="12" y2="17"/><line x1="9" y1="14" x2="15" y2="14"/></svg>
+              Exportar Excel
+            </button>
+            <button class="proj-new-btn" onclick="openNewAmostra()">
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              Nova Amostra
+            </button>
+          </div>
+        </div>
+        <!-- Filtros -->
+        <div class="ams-filters" id="ams-filters" style="flex-direction:column;gap:10px;width:100%">
           <!-- Filtro STATUS (toggle) -->
           <div style="display:flex;flex-direction:column;gap:4px">
             <span style="font-size:9px;font-weight:700;color:var(--g400);letter-spacing:.08em;text-transform:uppercase">Status</span>
@@ -4521,16 +4535,6 @@ setInterval(_checkSextaFeira, 60000);
               <button class="atv-tog ams-tog-fase active" data-val="concluido" onclick="amsTog(this,'fase')" style="opacity:.5">Concluído</button>
             </div>
           </div>
-        </div>
-        <div style="display:flex;gap:8px;align-self:flex-end;margin-top:-44px">
-          <button onclick="exportAmostrasXLS()" style="display:inline-flex;align-items:center;gap:6px;padding:9px 14px;background:#f0fdf4;border:1.5px solid #86efac;border-radius:8px;font-family:Barlow,sans-serif;font-size:12px;font-weight:700;color:#166534;cursor:pointer">
-            <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="11" x2="12" y2="17"/><line x1="9" y1="14" x2="15" y2="14"/></svg>
-            Exportar Excel
-          </button>
-          <button class="proj-new-btn" onclick="openNewAmostra()">
-            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-            Nova Amostra
-          </button>
         </div>
       </div>
 
@@ -4625,6 +4629,10 @@ setInterval(_checkSextaFeira, 60000);
         <button class="bom-subtab" id="reltab-kanban" onclick="relTab('kanban',this)">
           <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
           Kanban
+        </button>
+        <button class="bom-subtab" id="reltab-atividades" onclick="relTab('atividades',this)">
+          <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          Atividades
         </button>
       </div>
 
@@ -4765,6 +4773,65 @@ setInterval(_checkSextaFeira, 60000);
           <div style="font-size:14px;font-weight:600">Clique em Atualizar para gerar</div>
         </div>
       </div><!-- /relsp-kanban -->
+
+      <!-- Painel Atividades Semanais -->
+      <div id="relsp-atividades" style="display:none">
+        <div class="rel-topbar" style="padding-top:14px">
+          <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+            <div>
+              <label style="font-size:11px;font-weight:700;color:var(--g500);display:block;margin-bottom:4px">Semana</label>
+              <select id="rel-atv-semana" style="padding:8px 12px;border:1.5px solid var(--g300);border-radius:7px;font-family:'Barlow',sans-serif;font-size:12px;color:var(--g700);min-width:200px"></select>
+            </div>
+            <button class="proj-new-btn" onclick="relGerarAtividades()" style="background:var(--blue);margin-top:18px">
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+              Gerar Relatório
+            </button>
+            <button id="rel-atv-export-btn" onclick="relExportAtividadesXLS()" style="display:none;margin-top:18px;display:none;align-items:center;gap:6px;padding:7px 14px;background:#f0fdf4;border:1.5px solid #86efac;border-radius:8px;font-family:Barlow,sans-serif;font-size:12px;font-weight:700;color:#166534;cursor:pointer">
+              <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="11" x2="12" y2="17"/><line x1="9" y1="14" x2="15" y2="14"/></svg>
+              Exportar Excel
+            </button>
+          </div>
+        </div>
+
+        <div id="rel-atv-content" style="display:none">
+          <!-- KPIs -->
+          <div class="bd-kpi-row" id="rel-atv-kpis" style="margin-bottom:24px"></div>
+          <!-- Gráficos -->
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px">
+            <div class="rel-chart-card">
+              <div class="rel-chart-title">Tempo por Status (horas)</div>
+              <div class="rel-chart-wrap"><canvas id="rel-atv-chart-status"></canvas></div>
+            </div>
+            <div class="rel-chart-card">
+              <div class="rel-chart-title">Atividades por Prioridade</div>
+              <div class="rel-chart-wrap"><canvas id="rel-atv-chart-prio"></canvas></div>
+            </div>
+          </div>
+          <!-- Tabela detalhada -->
+          <div class="rel-chart-card">
+            <div class="rel-chart-title">Atividades da Semana</div>
+            <div class="bom-tbl-wrap" style="margin-top:10px;overflow-x:auto">
+              <table class="bom-tbl" style="min-width:700px">
+                <thead><tr>
+                  <th class="bom-th bom-th-base">Atividade</th>
+                  <th class="bom-th bom-th-base">Cliente</th>
+                  <th class="bom-th bom-th-base">Projeto</th>
+                  <th class="bom-th bom-th-base" style="width:90px">Status</th>
+                  <th class="bom-th bom-th-base" style="width:80px">Prioridade</th>
+                  <th class="bom-th bom-th-base" style="width:100px">Tempo</th>
+                  <th class="bom-th bom-th-base" style="width:100px">Prazo</th>
+                </tr></thead>
+                <tbody id="rel-atv-table"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <div id="rel-atv-empty" style="text-align:center;padding:60px;color:var(--g400)">
+          <svg viewBox="0 0 24 24" width="40" height="40" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="opacity:.3;margin-bottom:12px"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          <div style="font-size:14px;font-weight:600">Selecione a semana e gere o relatório</div>
+        </div>
+      </div><!-- /relsp-atividades -->
 
   </div><!-- /tab-relatorios -->
 
@@ -9559,16 +9626,180 @@ function _relChart(id, type, labels, data, opts){
 
 
 function relTab(id, btn){
-  document.getElementById('relsp-amostras').style.display = id==='amostras' ? '' : 'none';
-  document.getElementById('relsp-kanban').style.display   = id==='kanban'   ? '' : 'none';
+  document.getElementById('relsp-amostras').style.display    = id==='amostras'    ? '' : 'none';
+  document.getElementById('relsp-kanban').style.display      = id==='kanban'      ? '' : 'none';
+  document.getElementById('relsp-atividades').style.display  = id==='atividades'  ? '' : 'none';
   document.querySelectorAll('#tab-relatorios .bom-subtab').forEach(function(b){ b.classList.remove('active'); });
   btn.classList.add('active');
   if(id==='kanban') relGerarKanban();
+  if(id==='atividades') relInitAtividades();
 }
 
 function relGerarKanban(){
   _loadProjects(function(){ _relGerarKanbanComDados(); });
 }
+
+// ══════════════════════════════════════════════════════════
+// RELATÓRIO SEMANAL DE ATIVIDADES
+// ══════════════════════════════════════════════════════════
+
+// Gera lista de semanas com base nas atividades registradas
+function relInitAtividades(){
+  _loadActivities(function(){
+    var sel=document.getElementById('rel-atv-semana');
+    if(!sel) return;
+    var semSet={};
+    (_activities||[]).forEach(function(a){
+      var d=a.data||a.prazo||a.atualizado;
+      if(d){ var sem=_semISOWeek(new Date(d)); semSet[sem]=true; }
+    });
+    semSet[_semISOWeek(new Date())]=true;
+    var sems=Object.keys(semSet).sort().reverse();
+    sel.innerHTML='';
+    sems.forEach(function(s){
+      var opt=document.createElement('option'); opt.value=s;
+      var parts=s.split('-W');
+      var year=parseInt(parts[0]),wk=parseInt(parts[1]);
+      var jan4=new Date(year,0,4);
+      var dayOfWk=jan4.getDay()||7;
+      var weekStart=new Date(jan4.getTime()-((dayOfWk-1)*86400000)+((wk-1)*7*86400000));
+      var weekEnd=new Date(weekStart.getTime()+6*86400000);
+      var fmt=function(d){return (d.getDate()<10?'0':'')+d.getDate()+'/'+(d.getMonth()<9?'0':'')+(d.getMonth()+1);};
+      opt.textContent='Semana '+wk+'/'+year+' ('+fmt(weekStart)+' – '+fmt(weekEnd)+')';
+      sel.appendChild(opt);
+    });
+    if(!sems.length){
+      var opt=document.createElement('option'); opt.textContent='Nenhuma atividade registrada'; sel.appendChild(opt);
+    }
+  });
+}
+
+function relGerarAtividades(){
+  var sel=document.getElementById('rel-atv-semana');
+  if(!sel||!sel.value){ showPopup('Selecione a semana','Escolha a semana para gerar o relatório.','warn'); return; }
+  var semKey=sel.value;
+  _loadActivities(function(){
+    _loadProjects(function(){ _relGerarAtividadesComDados(semKey); });
+  });
+}
+
+function _relGerarAtividadesComDados(semKey){
+  var atvsWeek=(_activities||[]).filter(function(a){
+    var d=a.data||a.prazo||a.atualizado;
+    if(!d) return false;
+    return _semISOWeek(new Date(d))===semKey;
+  });
+  var kpiEl=document.getElementById('rel-atv-kpis');
+  var tbEl=document.getElementById('rel-atv-table');
+  var contentEl=document.getElementById('rel-atv-content');
+  var emptyEl=document.getElementById('rel-atv-empty');
+  var exportBtn=document.getElementById('rel-atv-export-btn');
+
+  if(!atvsWeek.length){
+    if(contentEl) contentEl.style.display='none';
+    if(emptyEl){ emptyEl.style.display=''; emptyEl.querySelector('div').textContent='Nenhuma atividade nesta semana'; }
+    if(exportBtn) exportBtn.style.display='none';
+    return;
+  }
+  if(emptyEl) emptyEl.style.display='none';
+  if(contentEl) contentEl.style.display='';
+
+  var totalH=0,totalM=0;
+  atvsWeek.forEach(function(a){ totalH+=Number(a.tempoH)||0; totalM+=Number(a.tempoM)||0; });
+  totalH+=Math.floor(totalM/60); totalM=totalM%60;
+  var pendentes=atvsWeek.filter(function(a){return a.status==='pending';}).length;
+  var fazendo  =atvsWeek.filter(function(a){return a.status==='doing';}).length;
+  var concluidas=atvsWeek.filter(function(a){return a.status==='done';}).length;
+
+  if(kpiEl) kpiEl.innerHTML=[
+    {icon:'<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>',label:'Total Atividades',val:atvsWeek.length,color:'#0070C0'},
+    {icon:'<polyline points="20 6 9 17 4 12"/>',label:'Concluídas',val:concluidas,color:'#22c55e'},
+    {icon:'<circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>',label:'Em Andamento',val:fazendo,color:'#f97316'},
+    {icon:'<circle cx="12" cy="12" r="10"/>',label:'Pendentes',val:pendentes,color:'#6b7280'},
+    {icon:'<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>',label:'Tempo Total',val:totalH+'h '+totalM+'min',color:'#7c3aed'}
+  ].map(function(k){
+    return '<div class="bd-kpi" style="border-top:3px solid '+k.color+'">'
+      +'<div class="bd-kpi-icon" style="color:'+k.color+'"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'+k.icon+'</svg></div>'
+      +'<div class="bd-kpi-val">'+k.val+'</div><div class="bd-kpi-label">'+k.label+'</div></div>';
+  }).join('');
+
+  var STLBL={pending:'Pendente',doing:'Em Andamento',done:'Concluída'};
+  var STCOL={pending:'#6b7280',doing:'#0070C0',done:'#22c55e'};
+  var PRIOLBL={low:'Baixa',normal:'Normal',high:'Alta'};
+  var PRIOCOL={low:'#9ca3af',normal:'#0070C0',high:'#ef4444'};
+
+  if(tbEl) tbEl.innerHTML=atvsWeek.map(function(a){
+    var projNome='';
+    if(a.projId&&_projects){var p=_projects.find(function(x){return x.id===a.projId;});if(p)projNome=p.nome;}
+    var tH=Number(a.tempoH)||0,tM=Number(a.tempoM)||0;
+    var tempo=(tH||tM)?(tH+'h '+(tM<10?'0':'')+tM+'min'):'—';
+    return '<tr>'
+      +'<td class="bom-td" style="font-weight:600">'+_escHtml(a.desc||'')+'</td>'
+      +'<td class="bom-td">'+_escHtml(a.cliente||'—')+'</td>'
+      +'<td class="bom-td">'+_escHtml(projNome||'—')+'</td>'
+      +'<td class="bom-td" style="text-align:center"><span style="background:'+(STCOL[a.status]||'#ccc')+'22;color:'+(STCOL[a.status]||'#666')+';padding:3px 8px;border-radius:12px;font-size:11px;font-weight:700">'+(STLBL[a.status]||a.status)+'</span></td>'
+      +'<td class="bom-td" style="text-align:center"><span style="color:'+(PRIOCOL[a.prio]||'#666')+';font-weight:700;font-size:11px">'+(PRIOLBL[a.prio]||a.prio||'—')+'</span></td>'
+      +'<td class="bom-td" style="text-align:center;font-weight:600;color:#7c3aed">'+tempo+'</td>'
+      +'<td class="bom-td" style="text-align:center">'+_escHtml(a.prazo||'—')+'</td>'
+      +'</tr>';
+  }).join('');
+
+  _loadChartJS(function(){
+    if(_relCharts['rel-atv-chart-status']){ _relCharts['rel-atv-chart-status'].destroy(); delete _relCharts['rel-atv-chart-status']; }
+    if(_relCharts['rel-atv-chart-prio'])  { _relCharts['rel-atv-chart-prio'].destroy();   delete _relCharts['rel-atv-chart-prio'];   }
+    _relChart('rel-atv-chart-status','bar',
+      ['Pendente','Em Andamento','Concluída'],[pendentes,fazendo,concluidas],
+      {colors:['#6b7280','#0070C0','#22c55e'],horizontal:false});
+    var prioCount={low:0,normal:0,high:0};
+    atvsWeek.forEach(function(a){ if(prioCount[a.prio]!==undefined) prioCount[a.prio]++; else prioCount.normal++; });
+    _relChart('rel-atv-chart-prio','doughnut',
+      ['Baixa','Normal','Alta'],[prioCount.low,prioCount.normal,prioCount.high],
+      {colors:['#9ca3af','#0070C0','#ef4444']});
+  });
+
+  if(exportBtn){ exportBtn.style.display='inline-flex'; }
+  window._relAtvCache={atvsWeek:atvsWeek,semKey:semKey};
+}
+
+function relExportAtividadesXLS(){
+  var cache=window._relAtvCache;
+  if(!cache||!cache.atvsWeek||!cache.atvsWeek.length){showPopup('Sem dados','Gere o relatório primeiro.','warn');return;}
+  _loadSheetJSStyle(function(){
+    var X=window.XLSXStyle||window.XLSX;
+    var hdrs=['Atividade','Cliente','Projeto','Status','Prioridade','Tempo (h)','Tempo (min)','Tempo Total','Prazo','Observações'];
+    var ncols=hdrs.length;
+    var wsData=[];
+    _xlInsertTitle(wsData,'Relatório Semanal — '+cache.semKey,ncols);
+    wsData.push(hdrs.map(function(h){return _xlCell(h,true,'0070C0','FFFFFF',true,true);}));
+    var STLBL={pending:'Pendente',doing:'Em Andamento',done:'Concluída'};
+    var PRIOLBL={low:'Baixa',normal:'Normal',high:'Alta'};
+    cache.atvsWeek.forEach(function(a,i){
+      var bg=i%2===0?'F0F7FF':'FFFFFF';
+      var projNome='';
+      if(a.projId&&_projects){var p=_projects.find(function(x){return x.id===a.projId;});if(p)projNome=p.nome;}
+      var tH=Number(a.tempoH)||0,tM=Number(a.tempoM)||0;
+      wsData.push([
+        _xlCell(a.desc,true,bg,'1A1A2E',false,true),
+        _xlCell(a.cliente,false,bg,'000000',false,true),
+        _xlCell(projNome,false,bg,'000000',false,true),
+        _xlCell(STLBL[a.status]||a.status,false,bg,'000000',true,true),
+        _xlCell(PRIOLBL[a.prio]||a.prio,false,bg,'000000',true,true),
+        _xlCell(String(tH),false,bg,'000000',true,true),
+        _xlCell(String(tM),false,bg,'000000',true,true),
+        _xlCell(tH+'h '+(tM<10?'0':'')+tM+'min',false,bg,'7c3aed',true,true),
+        _xlCell(a.prazo,false,bg,'000000',true,true),
+        _xlCell(a.obs,false,bg,'000000',false,true)
+      ]);
+    });
+    var ws=X.utils.aoa_to_sheet(wsData);
+    ws['!merges']=[{s:{r:0,c:0},e:{r:0,c:ncols-1}},{s:{r:1,c:0},e:{r:1,c:ncols-1}}];
+    _xlColW(ws,[35,20,25,15,12,10,10,12,12,35]);
+    var wb=X.utils.book_new();
+    X.utils.book_append_sheet(wb,ws,'Atividades');
+    X.writeFile(wb,'AUDAX_RelAtividades_'+cache.semKey+'.xlsx',{cellStyles:true,type:'binary'});
+  });
+}
+
 function _relGerarKanbanComDados(){
   var STLBL={todo:'TO DO',doing:'DOING',onhold:'ON HOLD',done:'DONE'};
   var STCOL={todo:'#6b7280',doing:'#0070C0',onhold:'#e09900',done:'#22c55e'};
