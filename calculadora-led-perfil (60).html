@@ -2484,6 +2484,25 @@ setInterval(_checkSextaFeira, 60000);
         <div class="bom-dropdown" id="bom-dropdown" style="display:none"></div>
       </div>
 
+      <!-- Busca reversa: quais produtos usam este componente -->
+      <div style="margin-top:12px">
+        <div class="card" style="margin-top:0;border:1px solid var(--g200)">
+          <div class="card-head" style="margin-bottom:8px">
+            <div class="card-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v18m0 0h10a2 2 0 0 0 2-2V9M9 21H5a2 2 0 0 1-2-2V9m0 0h18"/></svg></div>
+            <span class="card-title" style="font-size:13px">Onde este componente é usado?</span>
+          </div>
+          <div class="bom-search-row">
+            <input type="text" id="bom-rev-search" class="bom-search-input" placeholder="PN ou descrição do componente…" oninput="bomRevHint()" onkeydown="if(event.key==='Enter')bomRevSearch()">
+            <button class="bom-search-btn" onclick="bomRevSearch()">
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              Buscar
+            </button>
+          </div>
+          <div class="bom-hint" id="bom-rev-hint" style="font-size:10px;color:var(--g400)">Requer planilha de Estruturas carregada</div>
+          <div id="bom-rev-result" style="display:none;margin-top:10px"></div>
+        </div>
+      </div>
+
       <div id="bom-result-list" style="display:none;margin-top:8px"></div>
 
       <div id="bom-result" style="display:none">
@@ -2551,6 +2570,21 @@ setInterval(_checkSextaFeira, 60000);
           </button>
         </div>
         <div class="bom-hint" id="est-hint" style="font-size:10px;color:var(--g400)">Prefixo + descrição são combinados (ex: prefixo "3161" + descrição "azul" → LEDs azuis)</div>
+        <!-- Filtros e ordenação -->
+        <div style="display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin-top:10px;padding-top:10px;border-top:1px solid var(--g100)">
+          <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--g700);cursor:pointer;user-select:none">
+            <input type="checkbox" id="est-filter-saldo" onchange="_renderEstoque([])" style="accent-color:var(--blue);width:14px;height:14px">
+            Apenas com saldo
+          </label>
+          <div style="display:flex;align-items:center;gap:6px">
+            <span style="font-size:12px;color:var(--g500)">Ordenar por Saldo Total:</span>
+            <select id="est-sort-saldo" onchange="_renderEstoque([])" style="font-size:12px;padding:3px 8px;border:1px solid var(--g300);border-radius:6px;background:#fff;color:var(--g800);font-family:'Barlow',sans-serif;cursor:pointer">
+              <option value="">Padrão</option>
+              <option value="desc">Maior → Menor</option>
+              <option value="asc">Menor → Maior</option>
+            </select>
+          </div>
+        </div>
         <!-- Chips de seleção ativa -->
         <div id="est-chips" style="display:none;flex-wrap:wrap;gap:6px;margin-top:10px;padding-top:10px;border-top:1px solid var(--g100)"></div>
         <div class="bom-dropdown" id="est-dropdown" style="display:none"></div>
@@ -6190,6 +6224,31 @@ function _renderEstoque(items, label){
     for(var j=0;j<_estSelections[s].items.length;j++) allItems.push(_estSelections[s].items[j]);
   for(var j=0;j<items.length;j++) allItems.push(items[j]);
 
+  // Aplicar filtro "apenas com saldo"
+  var filterSaldo = document.getElementById('est-filter-saldo') && document.getElementById('est-filter-saldo').checked;
+  if(filterSaldo){
+    allItems = allItems.filter(function(it){
+      var m = _mrp[it.cod];
+      return m && (m.saldo_t > 0);
+    });
+  }
+
+  // Aplicar ordenação por saldo total
+  var sortSaldo = document.getElementById('est-sort-saldo') ? document.getElementById('est-sort-saldo').value : '';
+  if(sortSaldo === 'desc'){
+    allItems.sort(function(a,b){
+      var sa = (_mrp[a.cod]||{saldo_t:0}).saldo_t;
+      var sb = (_mrp[b.cod]||{saldo_t:0}).saldo_t;
+      return sb - sa;
+    });
+  } else if(sortSaldo === 'asc'){
+    allItems.sort(function(a,b){
+      var sa = (_mrp[a.cod]||{saldo_t:0}).saldo_t;
+      var sb = (_mrp[b.cod]||{saldo_t:0}).saldo_t;
+      return sa - sb;
+    });
+  }
+
   var row=0;
   for(var i=0;i<allItems.length;i++){
     var cod=allItems[i].cod;
@@ -6276,6 +6335,105 @@ function estSearch(addToSelection){
 function _getMRP(cod){
   if(!_mrp) return null;
   return _mrp[cod] || null;
+}
+
+// ── Busca reversa BOM: quais produtos usam este componente ──
+
+function bomRevHint(){
+  var val = (document.getElementById('bom-rev-search')||{value:''}).value.trim().toLowerCase();
+  var hint = document.getElementById('bom-rev-hint');
+  if(!_bom){ hint.textContent='Requer planilha de Estruturas carregada'; hint.style.color='var(--g400)'; return; }
+  if(!val){ hint.textContent='Digite um PN ou descrição do componente'; hint.style.color='var(--g400)'; return; }
+  var count = _bomRevMatches(val).length;
+  hint.style.color = count ? 'var(--g500)' : 'var(--red)';
+  hint.textContent = count ? count+' produto'+(count>1?'s':'')+' utiliza'+(count>1?'m':'')+' esse componente' : 'Componente não encontrado em nenhum produto';
+}
+
+function _bomRevMatches(query){
+  // Retorna array de {pai, pDesc, filho, qtd, obs} onde filho bate com query
+  if(!_bom) return [];
+  var q = query.toLowerCase();
+  var results = [];
+  var pais = Object.keys(_bom);
+  for(var i=0;i<pais.length;i++){
+    var pai = pais[i];
+    var filhos = _bom[pai];
+    for(var j=0;j<filhos.length;j++){
+      var f = filhos[j]; // [filho_cod, qtd, fDesc, obs]
+      var fCod  = (f[0]||'').toLowerCase();
+      var fDesc = (f[2]||'').toLowerCase();
+      if(fCod.includes(q) || fDesc.includes(q)){
+        results.push({
+          pai: pai,
+          pDesc: _descMap[pai] || '',
+          filho: f[0],
+          fDesc: f[2]||'',
+          qtd: f[1],
+          obs: f[3]||''
+        });
+      }
+    }
+  }
+  return results;
+}
+
+function bomRevSearch(){
+  var val = (document.getElementById('bom-rev-search')||{value:''}).value.trim();
+  var resDiv = document.getElementById('bom-rev-result');
+  if(!_bom){ showPopup('Estruturas não carregadas','Faça upload da planilha de Estruturas primeiro.','warn'); return; }
+  if(!val){ return; }
+  var matches = _bomRevMatches(val.toLowerCase());
+  if(!matches.length){
+    resDiv.innerHTML='<div style="font-size:12px;color:var(--red);padding:8px 0">Nenhum produto encontrado com esse componente.</div>';
+    resDiv.style.display='';
+    return;
+  }
+
+  // Agrupar por produto pai
+  var porPai = {};
+  for(var i=0;i<matches.length;i++){
+    var m = matches[i];
+    if(!porPai[m.pai]) porPai[m.pai]={pDesc:m.pDesc, comps:[]};
+    porPai[m.pai].comps.push(m);
+  }
+  var pais = Object.keys(porPai);
+
+  var html = '<div style="font-size:11px;color:var(--g500);margin-bottom:8px">'+pais.length+' produto'+(pais.length>1?'s':'')+' encontrado'+(pais.length>1?'s':'')+' para <strong style=\"color:var(--blue)\">"'+_escHtml(val)+'"</strong></div>';
+  html += '<div class="bom-tbl-wrap"><table class="bom-tbl"><thead><tr>';
+  html += '<th class="bom-th bom-th-base bom-th-cod">Produto (Pai)</th>';
+  html += '<th class="bom-th bom-th-base bom-th-desc">Descrição do Produto</th>';
+  html += '<th class="bom-th bom-th-base bom-th-cod">Componente</th>';
+  html += '<th class="bom-th bom-th-base bom-th-desc">Descrição do Componente</th>';
+  html += '<th class="bom-th bom-th-base bom-th-num" style="width:60px">Qtd</th>';
+  html += '<th class="bom-th bom-th-base bom-th-desc">Obs</th>';
+  html += '</tr></thead><tbody>';
+
+  var row=0;
+  for(var pi=0;pi<pais.length;pi++){
+    var pai=pais[pi];
+    var group=porPai[pai];
+    for(var ci=0;ci<group.comps.length;ci++){
+      var c=group.comps[ci];
+      var rowCls=row%2===0?'bom-tr-odd':'bom-tr-even'; row++;
+      var saldo = _mrp && _mrp[pai] ? _mrp[pai].saldo_t : null;
+      var saldoBadge = saldo===null ? '' : (saldo>0
+        ? '<span class="bom-badge ok" style="font-size:10px;padding:1px 5px;margin-left:4px">'+saldo+'</span>'
+        : '<span class="bom-badge zero" style="font-size:10px;padding:1px 5px;margin-left:4px">0</span>');
+      html+='<tr class="'+rowCls+'">';
+      html+='<td class="bom-td"><div class="bom-cod-wrap">'+_escHtml(pai)+'</div>'+saldoBadge+'</td>';
+      html+='<td class="bom-td" style="font-size:11px">'+_escHtml(group.pDesc)+'</td>';
+      html+='<td class="bom-td"><div class="bom-cod-wrap" style="background:var(--orange);color:#fff">'+_escHtml(c.filho)+'</div></td>';
+      html+='<td class="bom-td" style="font-size:11px">'+_escHtml(c.fDesc)+'</td>';
+      html+='<td class="bom-td bom-td-num" style="font-weight:600">'+_escHtml(String(c.qtd||''))+'</td>';
+      html+='<td class="bom-td" style="font-size:11px;color:var(--g500)">'+_escHtml(c.obs)+'</td>';
+      html+='</tr>';
+    }
+  }
+  html+='</tbody></table></div>';
+
+  resDiv.innerHTML=html;
+  resDiv.style.display='';
+  resDiv.scrollIntoView({behavior:'smooth',block:'start'});
 }
 
 function _fmt(n){
