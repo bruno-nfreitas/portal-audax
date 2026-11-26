@@ -1119,27 +1119,105 @@ function relSalvarPDF(){
   var mesNome = mesEl ? MESES[parseInt(mesEl.value)-1] : 'Relatório';
   var ano     = anoEl ? anoEl.value : '';
   var fname   = 'Relatorio_Engenharia_'+mesNome+'_'+ano+'.pdf';
+  var titulo  = 'Relatório de Engenharia — '+mesNome+' '+ano;
 
   setTimeout(function(){
     html2canvas(content, {
-      scale: 1.5,
+      scale: 3,
       useCORS: true,
-      backgroundColor: '#ffffff',
+      backgroundColor: '#f8f9fb',
       logging: false,
+      allowTaint: true,
+      imageTimeout: 15000,
     }).then(function(canvas){
-      var imgData = canvas.toDataURL('image/png');
+      // Dimensões A4 landscape em mm
+      var PAGE_W = 297, PAGE_H = 210;
+      var MARGIN = 12; // mm
+      var HEADER_H = 18; // mm reservado para cabeçalho
+      var FOOTER_H = 8;  // mm reservado para rodapé
+      var contentW = PAGE_W - MARGIN * 2;
+      var contentH = PAGE_H - HEADER_H - FOOTER_H - MARGIN; // área útil por página
+
+      // Calcular escala para caber na largura
+      var imgW = canvas.width;
+      var imgH = canvas.height;
+      var ratio = contentW / (imgW * 25.4 / 96); // px→mm a 96dpi
+      var printW = contentW;
+      var printH = (imgH * 25.4 / 96) * ratio;
+
       var pdf = new window.jspdf.jsPDF({
         orientation: 'landscape',
-        unit: 'px',
-        format: [canvas.width/1.5, canvas.height/1.5],
+        unit: 'mm',
+        format: 'a4',
+        compress: true,
       });
-      pdf.addImage(imgData, 'PNG', 0, 0, canvas.width/1.5, canvas.height/1.5);
+
+      var totalPages = Math.ceil(printH / contentH);
+      var now = new Date();
+      var dateStr = now.toLocaleDateString('pt-BR', {day:'2-digit',month:'long',year:'numeric'});
+
+      for(var page=0; page<totalPages; page++){
+        if(page > 0) pdf.addPage();
+
+        // ── Cabeçalho ──
+        // Faixa azul Audax
+        pdf.setFillColor(0, 112, 192);
+        pdf.rect(0, 0, PAGE_W, HEADER_H, 'F');
+        // Nome da empresa
+        pdf.setFont('helvetica','bold');
+        pdf.setFontSize(11);
+        pdf.setTextColor(255,255,255);
+        pdf.text('AUDAX ELECTRONICS', MARGIN, 7);
+        // Título do relatório
+        pdf.setFont('helvetica','normal');
+        pdf.setFontSize(8.5);
+        pdf.setTextColor(200,230,255);
+        pdf.text(titulo, MARGIN, 13);
+        // Faixa laranja decorativa
+        pdf.setFillColor(255, 102, 0);
+        pdf.rect(0, HEADER_H-2, PAGE_W, 2, 'F');
+        // Data no canto direito
+        pdf.setFont('helvetica','normal');
+        pdf.setFontSize(7.5);
+        pdf.setTextColor(200,230,255);
+        pdf.text(dateStr, PAGE_W - MARGIN, 9, {align:'right'});
+
+        // ── Conteúdo (fatia da imagem) ──
+        var sliceY = page * contentH;          // mm de início da fatia
+        var sliceH = Math.min(contentH, printH - sliceY); // mm desta fatia
+
+        // Criar canvas recortado para esta página
+        var slicePxY = sliceY / ratio / (25.4/96);
+        var slicePxH = sliceH / ratio / (25.4/96);
+        var slicePxH = Math.min(slicePxH, imgH - slicePxY);
+        var tmpCanvas = document.createElement('canvas');
+        tmpCanvas.width  = imgW;
+        tmpCanvas.height = Math.ceil(slicePxH);
+        var ctx = tmpCanvas.getContext('2d');
+        ctx.fillStyle = '#f8f9fb';
+        ctx.fillRect(0,0,tmpCanvas.width,tmpCanvas.height);
+        ctx.drawImage(canvas, 0, Math.floor(slicePxY), imgW, Math.ceil(slicePxH), 0, 0, imgW, Math.ceil(slicePxH));
+        var sliceData = tmpCanvas.toDataURL('image/jpeg', 0.95);
+
+        pdf.addImage(sliceData, 'JPEG', MARGIN, HEADER_H+1, printW, sliceH);
+
+        // ── Rodapé ──
+        var footerY = PAGE_H - 4;
+        pdf.setFillColor(240,242,245);
+        pdf.rect(0, PAGE_H - FOOTER_H, PAGE_W, FOOTER_H, 'F');
+        pdf.setFont('helvetica','normal');
+        pdf.setFontSize(6.5);
+        pdf.setTextColor(130,140,155);
+        pdf.text('Audax Electronics — Relatório gerado automaticamente pelo Portal de Engenharia', MARGIN, footerY);
+        pdf.text('Pág. '+(page+1)+' / '+totalPages, PAGE_W - MARGIN, footerY, {align:'right'});
+      }
+
       pdf.save(fname);
       showPopup('PDF salvo!', fname+' baixado com sucesso.', 'ok');
     }).catch(function(err){
       showPopup('Erro ao gerar PDF', err.message, 'err');
     });
-  }, 300);
+  }, 400);
 }
 
 // ══════════════════════════════════════════════════════════
@@ -1466,27 +1544,105 @@ function relSalvarPDF(){
   var mesNome = mesEl ? MESES[parseInt(mesEl.value)-1] : 'Relatório';
   var ano     = anoEl ? anoEl.value : '';
   var fname   = 'Relatorio_Engenharia_'+mesNome+'_'+ano+'.pdf';
+  var titulo  = 'Relatório de Engenharia — '+mesNome+' '+ano;
 
   setTimeout(function(){
     html2canvas(content, {
-      scale: 1.5,
+      scale: 3,
       useCORS: true,
-      backgroundColor: '#ffffff',
+      backgroundColor: '#f8f9fb',
       logging: false,
+      allowTaint: true,
+      imageTimeout: 15000,
     }).then(function(canvas){
-      var imgData = canvas.toDataURL('image/png');
+      // Dimensões A4 landscape em mm
+      var PAGE_W = 297, PAGE_H = 210;
+      var MARGIN = 12; // mm
+      var HEADER_H = 18; // mm reservado para cabeçalho
+      var FOOTER_H = 8;  // mm reservado para rodapé
+      var contentW = PAGE_W - MARGIN * 2;
+      var contentH = PAGE_H - HEADER_H - FOOTER_H - MARGIN; // área útil por página
+
+      // Calcular escala para caber na largura
+      var imgW = canvas.width;
+      var imgH = canvas.height;
+      var ratio = contentW / (imgW * 25.4 / 96); // px→mm a 96dpi
+      var printW = contentW;
+      var printH = (imgH * 25.4 / 96) * ratio;
+
       var pdf = new window.jspdf.jsPDF({
         orientation: 'landscape',
-        unit: 'px',
-        format: [canvas.width/1.5, canvas.height/1.5],
+        unit: 'mm',
+        format: 'a4',
+        compress: true,
       });
-      pdf.addImage(imgData, 'PNG', 0, 0, canvas.width/1.5, canvas.height/1.5);
+
+      var totalPages = Math.ceil(printH / contentH);
+      var now = new Date();
+      var dateStr = now.toLocaleDateString('pt-BR', {day:'2-digit',month:'long',year:'numeric'});
+
+      for(var page=0; page<totalPages; page++){
+        if(page > 0) pdf.addPage();
+
+        // ── Cabeçalho ──
+        // Faixa azul Audax
+        pdf.setFillColor(0, 112, 192);
+        pdf.rect(0, 0, PAGE_W, HEADER_H, 'F');
+        // Nome da empresa
+        pdf.setFont('helvetica','bold');
+        pdf.setFontSize(11);
+        pdf.setTextColor(255,255,255);
+        pdf.text('AUDAX ELECTRONICS', MARGIN, 7);
+        // Título do relatório
+        pdf.setFont('helvetica','normal');
+        pdf.setFontSize(8.5);
+        pdf.setTextColor(200,230,255);
+        pdf.text(titulo, MARGIN, 13);
+        // Faixa laranja decorativa
+        pdf.setFillColor(255, 102, 0);
+        pdf.rect(0, HEADER_H-2, PAGE_W, 2, 'F');
+        // Data no canto direito
+        pdf.setFont('helvetica','normal');
+        pdf.setFontSize(7.5);
+        pdf.setTextColor(200,230,255);
+        pdf.text(dateStr, PAGE_W - MARGIN, 9, {align:'right'});
+
+        // ── Conteúdo (fatia da imagem) ──
+        var sliceY = page * contentH;          // mm de início da fatia
+        var sliceH = Math.min(contentH, printH - sliceY); // mm desta fatia
+
+        // Criar canvas recortado para esta página
+        var slicePxY = sliceY / ratio / (25.4/96);
+        var slicePxH = sliceH / ratio / (25.4/96);
+        var slicePxH = Math.min(slicePxH, imgH - slicePxY);
+        var tmpCanvas = document.createElement('canvas');
+        tmpCanvas.width  = imgW;
+        tmpCanvas.height = Math.ceil(slicePxH);
+        var ctx = tmpCanvas.getContext('2d');
+        ctx.fillStyle = '#f8f9fb';
+        ctx.fillRect(0,0,tmpCanvas.width,tmpCanvas.height);
+        ctx.drawImage(canvas, 0, Math.floor(slicePxY), imgW, Math.ceil(slicePxH), 0, 0, imgW, Math.ceil(slicePxH));
+        var sliceData = tmpCanvas.toDataURL('image/jpeg', 0.95);
+
+        pdf.addImage(sliceData, 'JPEG', MARGIN, HEADER_H+1, printW, sliceH);
+
+        // ── Rodapé ──
+        var footerY = PAGE_H - 4;
+        pdf.setFillColor(240,242,245);
+        pdf.rect(0, PAGE_H - FOOTER_H, PAGE_W, FOOTER_H, 'F');
+        pdf.setFont('helvetica','normal');
+        pdf.setFontSize(6.5);
+        pdf.setTextColor(130,140,155);
+        pdf.text('Audax Electronics — Relatório gerado automaticamente pelo Portal de Engenharia', MARGIN, footerY);
+        pdf.text('Pág. '+(page+1)+' / '+totalPages, PAGE_W - MARGIN, footerY, {align:'right'});
+      }
+
       pdf.save(fname);
       showPopup('PDF salvo!', fname+' baixado com sucesso.', 'ok');
     }).catch(function(err){
       showPopup('Erro ao gerar PDF', err.message, 'err');
     });
-  }, 300);
+  }, 400);
 }
 
 // ══════════════════════════════════════════════════════════
@@ -1623,27 +1779,105 @@ function relSalvarPDF(){
   var mesNome = mesEl ? MESES[parseInt(mesEl.value)-1] : 'Relatório';
   var ano     = anoEl ? anoEl.value : '';
   var fname   = 'Relatorio_Engenharia_'+mesNome+'_'+ano+'.pdf';
+  var titulo  = 'Relatório de Engenharia — '+mesNome+' '+ano;
 
   setTimeout(function(){
     html2canvas(content, {
-      scale: 1.5,
+      scale: 3,
       useCORS: true,
-      backgroundColor: '#ffffff',
+      backgroundColor: '#f8f9fb',
       logging: false,
+      allowTaint: true,
+      imageTimeout: 15000,
     }).then(function(canvas){
-      var imgData = canvas.toDataURL('image/png');
+      // Dimensões A4 landscape em mm
+      var PAGE_W = 297, PAGE_H = 210;
+      var MARGIN = 12; // mm
+      var HEADER_H = 18; // mm reservado para cabeçalho
+      var FOOTER_H = 8;  // mm reservado para rodapé
+      var contentW = PAGE_W - MARGIN * 2;
+      var contentH = PAGE_H - HEADER_H - FOOTER_H - MARGIN; // área útil por página
+
+      // Calcular escala para caber na largura
+      var imgW = canvas.width;
+      var imgH = canvas.height;
+      var ratio = contentW / (imgW * 25.4 / 96); // px→mm a 96dpi
+      var printW = contentW;
+      var printH = (imgH * 25.4 / 96) * ratio;
+
       var pdf = new window.jspdf.jsPDF({
         orientation: 'landscape',
-        unit: 'px',
-        format: [canvas.width/1.5, canvas.height/1.5],
+        unit: 'mm',
+        format: 'a4',
+        compress: true,
       });
-      pdf.addImage(imgData, 'PNG', 0, 0, canvas.width/1.5, canvas.height/1.5);
+
+      var totalPages = Math.ceil(printH / contentH);
+      var now = new Date();
+      var dateStr = now.toLocaleDateString('pt-BR', {day:'2-digit',month:'long',year:'numeric'});
+
+      for(var page=0; page<totalPages; page++){
+        if(page > 0) pdf.addPage();
+
+        // ── Cabeçalho ──
+        // Faixa azul Audax
+        pdf.setFillColor(0, 112, 192);
+        pdf.rect(0, 0, PAGE_W, HEADER_H, 'F');
+        // Nome da empresa
+        pdf.setFont('helvetica','bold');
+        pdf.setFontSize(11);
+        pdf.setTextColor(255,255,255);
+        pdf.text('AUDAX ELECTRONICS', MARGIN, 7);
+        // Título do relatório
+        pdf.setFont('helvetica','normal');
+        pdf.setFontSize(8.5);
+        pdf.setTextColor(200,230,255);
+        pdf.text(titulo, MARGIN, 13);
+        // Faixa laranja decorativa
+        pdf.setFillColor(255, 102, 0);
+        pdf.rect(0, HEADER_H-2, PAGE_W, 2, 'F');
+        // Data no canto direito
+        pdf.setFont('helvetica','normal');
+        pdf.setFontSize(7.5);
+        pdf.setTextColor(200,230,255);
+        pdf.text(dateStr, PAGE_W - MARGIN, 9, {align:'right'});
+
+        // ── Conteúdo (fatia da imagem) ──
+        var sliceY = page * contentH;          // mm de início da fatia
+        var sliceH = Math.min(contentH, printH - sliceY); // mm desta fatia
+
+        // Criar canvas recortado para esta página
+        var slicePxY = sliceY / ratio / (25.4/96);
+        var slicePxH = sliceH / ratio / (25.4/96);
+        var slicePxH = Math.min(slicePxH, imgH - slicePxY);
+        var tmpCanvas = document.createElement('canvas');
+        tmpCanvas.width  = imgW;
+        tmpCanvas.height = Math.ceil(slicePxH);
+        var ctx = tmpCanvas.getContext('2d');
+        ctx.fillStyle = '#f8f9fb';
+        ctx.fillRect(0,0,tmpCanvas.width,tmpCanvas.height);
+        ctx.drawImage(canvas, 0, Math.floor(slicePxY), imgW, Math.ceil(slicePxH), 0, 0, imgW, Math.ceil(slicePxH));
+        var sliceData = tmpCanvas.toDataURL('image/jpeg', 0.95);
+
+        pdf.addImage(sliceData, 'JPEG', MARGIN, HEADER_H+1, printW, sliceH);
+
+        // ── Rodapé ──
+        var footerY = PAGE_H - 4;
+        pdf.setFillColor(240,242,245);
+        pdf.rect(0, PAGE_H - FOOTER_H, PAGE_W, FOOTER_H, 'F');
+        pdf.setFont('helvetica','normal');
+        pdf.setFontSize(6.5);
+        pdf.setTextColor(130,140,155);
+        pdf.text('Audax Electronics — Relatório gerado automaticamente pelo Portal de Engenharia', MARGIN, footerY);
+        pdf.text('Pág. '+(page+1)+' / '+totalPages, PAGE_W - MARGIN, footerY, {align:'right'});
+      }
+
       pdf.save(fname);
       showPopup('PDF salvo!', fname+' baixado com sucesso.', 'ok');
     }).catch(function(err){
       showPopup('Erro ao gerar PDF', err.message, 'err');
     });
-  }, 300);
+  }, 400);
 }
 
 // ══════════════════════════════════════════════════════════
@@ -1780,27 +2014,105 @@ function relSalvarPDF(){
   var mesNome = mesEl ? MESES[parseInt(mesEl.value)-1] : 'Relatório';
   var ano     = anoEl ? anoEl.value : '';
   var fname   = 'Relatorio_Engenharia_'+mesNome+'_'+ano+'.pdf';
+  var titulo  = 'Relatório de Engenharia — '+mesNome+' '+ano;
 
   setTimeout(function(){
     html2canvas(content, {
-      scale: 1.5,
+      scale: 3,
       useCORS: true,
-      backgroundColor: '#ffffff',
+      backgroundColor: '#f8f9fb',
       logging: false,
+      allowTaint: true,
+      imageTimeout: 15000,
     }).then(function(canvas){
-      var imgData = canvas.toDataURL('image/png');
+      // Dimensões A4 landscape em mm
+      var PAGE_W = 297, PAGE_H = 210;
+      var MARGIN = 12; // mm
+      var HEADER_H = 18; // mm reservado para cabeçalho
+      var FOOTER_H = 8;  // mm reservado para rodapé
+      var contentW = PAGE_W - MARGIN * 2;
+      var contentH = PAGE_H - HEADER_H - FOOTER_H - MARGIN; // área útil por página
+
+      // Calcular escala para caber na largura
+      var imgW = canvas.width;
+      var imgH = canvas.height;
+      var ratio = contentW / (imgW * 25.4 / 96); // px→mm a 96dpi
+      var printW = contentW;
+      var printH = (imgH * 25.4 / 96) * ratio;
+
       var pdf = new window.jspdf.jsPDF({
         orientation: 'landscape',
-        unit: 'px',
-        format: [canvas.width/1.5, canvas.height/1.5],
+        unit: 'mm',
+        format: 'a4',
+        compress: true,
       });
-      pdf.addImage(imgData, 'PNG', 0, 0, canvas.width/1.5, canvas.height/1.5);
+
+      var totalPages = Math.ceil(printH / contentH);
+      var now = new Date();
+      var dateStr = now.toLocaleDateString('pt-BR', {day:'2-digit',month:'long',year:'numeric'});
+
+      for(var page=0; page<totalPages; page++){
+        if(page > 0) pdf.addPage();
+
+        // ── Cabeçalho ──
+        // Faixa azul Audax
+        pdf.setFillColor(0, 112, 192);
+        pdf.rect(0, 0, PAGE_W, HEADER_H, 'F');
+        // Nome da empresa
+        pdf.setFont('helvetica','bold');
+        pdf.setFontSize(11);
+        pdf.setTextColor(255,255,255);
+        pdf.text('AUDAX ELECTRONICS', MARGIN, 7);
+        // Título do relatório
+        pdf.setFont('helvetica','normal');
+        pdf.setFontSize(8.5);
+        pdf.setTextColor(200,230,255);
+        pdf.text(titulo, MARGIN, 13);
+        // Faixa laranja decorativa
+        pdf.setFillColor(255, 102, 0);
+        pdf.rect(0, HEADER_H-2, PAGE_W, 2, 'F');
+        // Data no canto direito
+        pdf.setFont('helvetica','normal');
+        pdf.setFontSize(7.5);
+        pdf.setTextColor(200,230,255);
+        pdf.text(dateStr, PAGE_W - MARGIN, 9, {align:'right'});
+
+        // ── Conteúdo (fatia da imagem) ──
+        var sliceY = page * contentH;          // mm de início da fatia
+        var sliceH = Math.min(contentH, printH - sliceY); // mm desta fatia
+
+        // Criar canvas recortado para esta página
+        var slicePxY = sliceY / ratio / (25.4/96);
+        var slicePxH = sliceH / ratio / (25.4/96);
+        var slicePxH = Math.min(slicePxH, imgH - slicePxY);
+        var tmpCanvas = document.createElement('canvas');
+        tmpCanvas.width  = imgW;
+        tmpCanvas.height = Math.ceil(slicePxH);
+        var ctx = tmpCanvas.getContext('2d');
+        ctx.fillStyle = '#f8f9fb';
+        ctx.fillRect(0,0,tmpCanvas.width,tmpCanvas.height);
+        ctx.drawImage(canvas, 0, Math.floor(slicePxY), imgW, Math.ceil(slicePxH), 0, 0, imgW, Math.ceil(slicePxH));
+        var sliceData = tmpCanvas.toDataURL('image/jpeg', 0.95);
+
+        pdf.addImage(sliceData, 'JPEG', MARGIN, HEADER_H+1, printW, sliceH);
+
+        // ── Rodapé ──
+        var footerY = PAGE_H - 4;
+        pdf.setFillColor(240,242,245);
+        pdf.rect(0, PAGE_H - FOOTER_H, PAGE_W, FOOTER_H, 'F');
+        pdf.setFont('helvetica','normal');
+        pdf.setFontSize(6.5);
+        pdf.setTextColor(130,140,155);
+        pdf.text('Audax Electronics — Relatório gerado automaticamente pelo Portal de Engenharia', MARGIN, footerY);
+        pdf.text('Pág. '+(page+1)+' / '+totalPages, PAGE_W - MARGIN, footerY, {align:'right'});
+      }
+
       pdf.save(fname);
       showPopup('PDF salvo!', fname+' baixado com sucesso.', 'ok');
     }).catch(function(err){
       showPopup('Erro ao gerar PDF', err.message, 'err');
     });
-  }, 300);
+  }, 400);
 }
 
 // ══════════════════════════════════════════════════════════
@@ -4713,6 +5025,11 @@ setInterval(_checkSextaFeira, 60000);
             <div class="rel-chart-wrap"><canvas id="rel-chart-kanban"></canvas></div>
           </div>
         </div>
+        <!-- Gráfico: Peças por Cliente -->
+        <div class="rel-chart-card" style="margin-bottom:20px">
+          <div class="rel-chart-title">Peças Montadas por Cliente</div>
+          <div class="rel-chart-wrap" style="height:200px"><canvas id="rel-chart-pecas-cli"></canvas></div>
+        </div>
         <!-- Tabela detalhada amostras -->
         <div class="rel-chart-card" style="margin-bottom:20px">
           <div class="rel-chart-title">Amostras do Período</div>
@@ -4721,6 +5038,7 @@ setInterval(_checkSextaFeira, 60000);
               <thead><tr>
                 <th class="bom-th bom-th-base">Projeto</th>
                 <th class="bom-th bom-th-base">Cliente</th>
+                <th class="bom-th bom-th-base" style="width:70px">Peças</th>
                 <th class="bom-th bom-th-base" style="width:100px">Solicitação</th>
                 <th class="bom-th bom-th-base" style="width:100px">Conclusão</th>
                 <th class="bom-th bom-th-base" style="width:80px">Ciclo</th>
@@ -9665,13 +9983,19 @@ function _relGerarComDados(mes, ano){
   var withCiclo=concluidas.filter(function(a){return a.cicloDias!==undefined;});
   if(withCiclo.length) cicloMedio=Math.round(withCiclo.reduce(function(s,a){return s+a.cicloDias;},0)/withCiclo.length);
 
+  // Calcular totais de peças
+  var totalPecas = amsPeríodo.reduce(function(s,a){ return s+(parseInt(a.qtd)||0); }, 0);
+  var pecasConcluidas = concluidas.reduce(function(s,a){ return s+(parseInt(a.qtd)||0); }, 0);
+
   // KPIs
   document.getElementById('rel-kpis').innerHTML=
     _bdKpi('Total do Período',amsPeríodo.length,'amostras','')+
     _bdKpi('Concluídas',concluidas.length,'amostras','green')+
     _bdKpi('Em andamento',emAndamento.length,'amostras','blue')+
     _bdKpi('Atrasadas',atrasadas.length,'amostras',atrasadas.length>0?'orange':'')+
-    _bdKpi('Ciclo médio',cicloMedio>0?cicloMedio+' dias':'—','conclusão','');
+    _bdKpi('Ciclo médio',cicloMedio>0?cicloMedio+' dias':'—','conclusão','')+
+    _bdKpi('Total de Peças',totalPecas.toLocaleString('pt-BR'),'unidades','blue')+
+    _bdKpi('Peças Concluídas',pecasConcluidas.toLocaleString('pt-BR'),'unidades','green');
 
   // Destruir charts anteriores
   Object.keys(_relCharts).forEach(function(k){ if(_relCharts[k]) _relCharts[k].destroy(); });
@@ -9710,6 +10034,17 @@ function _relGerarComDados(mes, ano){
     [kbMap.todo,kbMap.doing,kbMap.onhold,kbMap.done],
     {colors:['#6b7280','#0070C0','#e09900','#22c55e']});
 
+  // Chart 5: Peças por cliente (bar)
+  var pecasCliMap={};
+  amsPeríodo.forEach(function(a){
+    var cl=a.cliente||'Sem cliente';
+    pecasCliMap[cl]=(pecasCliMap[cl]||0)+(parseInt(a.qtd)||0);
+  });
+  var pecasCliLabels=Object.keys(pecasCliMap).sort(function(a,b){return pecasCliMap[b]-pecasCliMap[a];});
+  _relChart('rel-chart-pecas-cli','bar',pecasCliLabels,
+    pecasCliLabels.map(function(k){return pecasCliMap[k];}),
+    {label:'Peças (unid.)',colors:['#FF6600','#FF8833','#FFAA66','#FFC299','#FFD5BB','#FFE8DD']});
+
   // Tabela amostras
   var STATUS_LABEL={em_andamento:'Em andamento',atrasado:'Atrasado',concluido:'Concluído'};
   var tBody=document.getElementById('rel-ams-table');
@@ -9717,15 +10052,17 @@ function _relGerarComDados(mes, ano){
     var st=_calcAmsStatus(a);
     var stColor=st==='concluido'?'var(--green)':st==='atrasado'?'var(--red)':'var(--blue)';
     var cls=i%2===0?'bom-tr-odd':'bom-tr-even';
+    var qtdPecas = parseInt(a.qtd)||0;
     return '<tr class="'+cls+'">'
       +'<td class="bom-td" style="font-size:11px;font-weight:600">'+a.projeto+'</td>'
       +'<td class="bom-td" style="font-size:11px">'+( a.cliente||'—' )+'</td>'
+      +'<td class="bom-td bom-td-num" style="font-size:11px;font-weight:700;color:var(--blue)">'+( qtdPecas>0?qtdPecas.toLocaleString('pt-BR'):'—' )+'</td>'
       +'<td class="bom-td" style="font-size:11px">'+( a.solicitacao?new Date(a.solicitacao+'T00:00:00').toLocaleDateString('pt-BR'):'—' )+'</td>'
       +'<td class="bom-td" style="font-size:11px">'+( a.dataConclusao?new Date(a.dataConclusao+'T00:00:00').toLocaleDateString('pt-BR'):'—' )+'</td>'
       +'<td class="bom-td" style="font-size:11px;font-weight:700">'+( a.cicloDias!==undefined?a.cicloDias+' dias':'—' )+'</td>'
       +'<td class="bom-td" style="font-size:10px;font-weight:700;color:'+stColor+'">'+STATUS_LABEL[st]+'</td>'
       +'</tr>';
-  }).join(''):'<tr><td colspan="6" class="bom-loading">Nenhuma amostra no período.</td></tr>';
+  }).join(''):'<tr><td colspan="7" class="bom-loading">Nenhuma amostra no período.</td></tr>';
 
   // Tabela projetos kanban
   var PRIO={low:'Baixa',medium:'Média',high:'Alta',critical:'Crítica'};
@@ -10245,27 +10582,105 @@ function relSalvarPDF(){
   var mesNome = mesEl ? MESES[parseInt(mesEl.value)-1] : 'Relatório';
   var ano     = anoEl ? anoEl.value : '';
   var fname   = 'Relatorio_Engenharia_'+mesNome+'_'+ano+'.pdf';
+  var titulo  = 'Relatório de Engenharia — '+mesNome+' '+ano;
 
   setTimeout(function(){
     html2canvas(content, {
-      scale: 1.5,
+      scale: 3,
       useCORS: true,
-      backgroundColor: '#ffffff',
+      backgroundColor: '#f8f9fb',
       logging: false,
+      allowTaint: true,
+      imageTimeout: 15000,
     }).then(function(canvas){
-      var imgData = canvas.toDataURL('image/png');
+      // Dimensões A4 landscape em mm
+      var PAGE_W = 297, PAGE_H = 210;
+      var MARGIN = 12; // mm
+      var HEADER_H = 18; // mm reservado para cabeçalho
+      var FOOTER_H = 8;  // mm reservado para rodapé
+      var contentW = PAGE_W - MARGIN * 2;
+      var contentH = PAGE_H - HEADER_H - FOOTER_H - MARGIN; // área útil por página
+
+      // Calcular escala para caber na largura
+      var imgW = canvas.width;
+      var imgH = canvas.height;
+      var ratio = contentW / (imgW * 25.4 / 96); // px→mm a 96dpi
+      var printW = contentW;
+      var printH = (imgH * 25.4 / 96) * ratio;
+
       var pdf = new window.jspdf.jsPDF({
         orientation: 'landscape',
-        unit: 'px',
-        format: [canvas.width/1.5, canvas.height/1.5],
+        unit: 'mm',
+        format: 'a4',
+        compress: true,
       });
-      pdf.addImage(imgData, 'PNG', 0, 0, canvas.width/1.5, canvas.height/1.5);
+
+      var totalPages = Math.ceil(printH / contentH);
+      var now = new Date();
+      var dateStr = now.toLocaleDateString('pt-BR', {day:'2-digit',month:'long',year:'numeric'});
+
+      for(var page=0; page<totalPages; page++){
+        if(page > 0) pdf.addPage();
+
+        // ── Cabeçalho ──
+        // Faixa azul Audax
+        pdf.setFillColor(0, 112, 192);
+        pdf.rect(0, 0, PAGE_W, HEADER_H, 'F');
+        // Nome da empresa
+        pdf.setFont('helvetica','bold');
+        pdf.setFontSize(11);
+        pdf.setTextColor(255,255,255);
+        pdf.text('AUDAX ELECTRONICS', MARGIN, 7);
+        // Título do relatório
+        pdf.setFont('helvetica','normal');
+        pdf.setFontSize(8.5);
+        pdf.setTextColor(200,230,255);
+        pdf.text(titulo, MARGIN, 13);
+        // Faixa laranja decorativa
+        pdf.setFillColor(255, 102, 0);
+        pdf.rect(0, HEADER_H-2, PAGE_W, 2, 'F');
+        // Data no canto direito
+        pdf.setFont('helvetica','normal');
+        pdf.setFontSize(7.5);
+        pdf.setTextColor(200,230,255);
+        pdf.text(dateStr, PAGE_W - MARGIN, 9, {align:'right'});
+
+        // ── Conteúdo (fatia da imagem) ──
+        var sliceY = page * contentH;          // mm de início da fatia
+        var sliceH = Math.min(contentH, printH - sliceY); // mm desta fatia
+
+        // Criar canvas recortado para esta página
+        var slicePxY = sliceY / ratio / (25.4/96);
+        var slicePxH = sliceH / ratio / (25.4/96);
+        var slicePxH = Math.min(slicePxH, imgH - slicePxY);
+        var tmpCanvas = document.createElement('canvas');
+        tmpCanvas.width  = imgW;
+        tmpCanvas.height = Math.ceil(slicePxH);
+        var ctx = tmpCanvas.getContext('2d');
+        ctx.fillStyle = '#f8f9fb';
+        ctx.fillRect(0,0,tmpCanvas.width,tmpCanvas.height);
+        ctx.drawImage(canvas, 0, Math.floor(slicePxY), imgW, Math.ceil(slicePxH), 0, 0, imgW, Math.ceil(slicePxH));
+        var sliceData = tmpCanvas.toDataURL('image/jpeg', 0.95);
+
+        pdf.addImage(sliceData, 'JPEG', MARGIN, HEADER_H+1, printW, sliceH);
+
+        // ── Rodapé ──
+        var footerY = PAGE_H - 4;
+        pdf.setFillColor(240,242,245);
+        pdf.rect(0, PAGE_H - FOOTER_H, PAGE_W, FOOTER_H, 'F');
+        pdf.setFont('helvetica','normal');
+        pdf.setFontSize(6.5);
+        pdf.setTextColor(130,140,155);
+        pdf.text('Audax Electronics — Relatório gerado automaticamente pelo Portal de Engenharia', MARGIN, footerY);
+        pdf.text('Pág. '+(page+1)+' / '+totalPages, PAGE_W - MARGIN, footerY, {align:'right'});
+      }
+
       pdf.save(fname);
       showPopup('PDF salvo!', fname+' baixado com sucesso.', 'ok');
     }).catch(function(err){
       showPopup('Erro ao gerar PDF', err.message, 'err');
     });
-  }, 300);
+  }, 400);
 }
 
 // ══════════════════════════════════════════════════════════
