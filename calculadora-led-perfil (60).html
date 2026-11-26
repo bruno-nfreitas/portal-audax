@@ -9983,9 +9983,15 @@ function _relGerarComDados(mes, ano){
   var withCiclo=concluidas.filter(function(a){return a.cicloDias!==undefined;});
   if(withCiclo.length) cicloMedio=Math.round(withCiclo.reduce(function(s,a){return s+a.cicloDias;},0)/withCiclo.length);
 
-  // Calcular totais de peças
-  var totalPecas = amsPeríodo.reduce(function(s,a){ return s+(parseInt(a.qtd)||0); }, 0);
-  var pecasConcluidas = concluidas.reduce(function(s,a){ return s+(parseInt(a.qtd)||0); }, 0);
+  // Amostras concluídas NESTE mês (pela data de conclusão — base para contagem de peças)
+  var concluidasNoMes=_amostras.filter(function(a){
+    if(a.faseAtual!=='concluido'||!a.dataConclusao) return false;
+    var d=new Date(a.dataConclusao+'T00:00:00');
+    return d.getFullYear()===ano && d.getMonth()===mes-1;
+  });
+
+  // Calcular totais de peças (somente conclusões do mês, sem dupla contagem)
+  var totalPecas = concluidasNoMes.reduce(function(s,a){ return s+(parseInt(a.qtd)||0); }, 0);
 
   // KPIs
   document.getElementById('rel-kpis').innerHTML=
@@ -9994,8 +10000,7 @@ function _relGerarComDados(mes, ano){
     _bdKpi('Em andamento',emAndamento.length,'amostras','blue')+
     _bdKpi('Atrasadas',atrasadas.length,'amostras',atrasadas.length>0?'orange':'')+
     _bdKpi('Ciclo médio',cicloMedio>0?cicloMedio+' dias':'—','conclusão','')+
-    _bdKpi('Total de Peças',totalPecas.toLocaleString('pt-BR'),'unidades','blue')+
-    _bdKpi('Peças Concluídas',pecasConcluidas.toLocaleString('pt-BR'),'unidades','green');
+    _bdKpi('Peças Concluídas',totalPecas.toLocaleString('pt-BR'),'unidades no mês','green');
 
   // Destruir charts anteriores
   Object.keys(_relCharts).forEach(function(k){ if(_relCharts[k]) _relCharts[k].destroy(); });
@@ -10034,9 +10039,9 @@ function _relGerarComDados(mes, ano){
     [kbMap.todo,kbMap.doing,kbMap.onhold,kbMap.done],
     {colors:['#6b7280','#0070C0','#e09900','#22c55e']});
 
-  // Chart 5: Peças por cliente (bar)
+  // Chart 5: Peças por cliente (somente concluídas no mês, pela data de conclusão)
   var pecasCliMap={};
-  amsPeríodo.forEach(function(a){
+  concluidasNoMes.forEach(function(a){
     var cl=a.cliente||'Sem cliente';
     pecasCliMap[cl]=(pecasCliMap[cl]||0)+(parseInt(a.qtd)||0);
   });
