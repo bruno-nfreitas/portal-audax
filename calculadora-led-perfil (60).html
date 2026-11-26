@@ -9979,11 +9979,20 @@ function _relGerarComDados(mes, ano){
   var withCiclo=concluidas.filter(function(a){return a.cicloDias!==undefined;});
   if(withCiclo.length) cicloMedio=Math.round(withCiclo.reduce(function(s,a){return s+a.cicloDias;},0)/withCiclo.length);
 
-  // Amostras concluídas NESTE mês (pela data de conclusão — base para contagem de peças)
+  // Amostras concluídas NESTE mês:
+  // Prioridade: dataConclusao no mês. Fallback: sem dataConclusao mas solicitação no mês e concluída.
   var concluidasNoMes=_amostras.filter(function(a){
-    if(a.faseAtual!=='concluido'||!a.dataConclusao) return false;
-    var d=new Date(a.dataConclusao+'T00:00:00');
-    return d.getFullYear()===ano && d.getMonth()===mes-1;
+    if(a.faseAtual!=='concluido') return false;
+    if(a.dataConclusao){
+      var d=new Date(a.dataConclusao+'T00:00:00');
+      return d.getFullYear()===ano && d.getMonth()===mes-1;
+    }
+    // Fallback: usa data de solicitação
+    if(a.solicitacao){
+      var d=new Date(a.solicitacao+'T00:00:00');
+      return d.getFullYear()===ano && d.getMonth()===mes-1;
+    }
+    return false;
   });
 
   // Calcular totais de peças (somente conclusões do mês, sem dupla contagem)
@@ -10116,7 +10125,16 @@ function _relChart(id, type, labels, data, opts){
       indexAxis:opts.horizontal?'y':'x',
       plugins:{
         legend:{display:type==='doughnut',position:'bottom',labels:{font:{family:'Barlow,sans-serif',size:11},padding:12}},
-        tooltip:{callbacks:{label:function(ctx){return ' '+ctx.parsed[opts.horizontal?'x':'y']+(id==='rel-chart-ciclo'?' dias':' amostras');}}}
+        tooltip:{callbacks:{label:function(ctx){
+          var val = ctx.chart.config.type==='doughnut' ? ctx.parsed : ctx.parsed[opts.horizontal?'x':'y'];
+          var suffix = id==='rel-chart-ciclo' ? ' dias'
+            : id==='rel-chart-pecas-cli'||id==='rel-chart-pais-pecas' ? ' peças'
+            : ' amostras';
+          var pct = ctx.chart.config.type==='doughnut'
+            ? ' ('+Math.round(ctx.parsed/ctx.dataset.data.reduce(function(a,b){return a+b;},0)*100)+'%)'
+            : '';
+          return ' '+(val||0)+suffix+pct;
+        }}}
       },
       scales: type!=='doughnut'?{
         x:{grid:{color:'#f1f5f9'},ticks:{font:{family:'Barlow,sans-serif',size:10}}},
